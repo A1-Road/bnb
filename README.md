@@ -33,7 +33,7 @@ An off-chain proof of concept for bridging messages between LINE and Telegram us
    
    認証方法は以下のいずれかを選択:
 
-   A) サービスアカウントキーを使用する場合:
+   A サービスアカウントキーを使用する場合:
    - サービスアカウントの設定:
      1. サイドメニューから「IAM と管理」→「サービスアカウント」を選択
      2. 「サービスアカウントを作成」をクリック
@@ -99,7 +99,7 @@ An off-chain proof of concept for bridging messages between LINE and Telegram us
 
 5. Vercelの環境変数を設定:
 
-   A) サービスアカウントキーを使用する場合:
+   A サービスアカウントキーを使用する場合:
    ```bash
    # サービスアカウントキーをbase64エンコード
    base64 -i path_to_your_service_account_key.json | tr -d '\n' > google_credentials_base64.txt
@@ -108,7 +108,7 @@ An off-chain proof of concept for bridging messages between LINE and Telegram us
    vercel secrets add google_application_credentials "$(cat google_credentials_base64.txt)"
    ```
 
-   B) Workload Identity Poolを使用する場合:
+   B Workload Identity Poolを使用する場合:
    ```bash
    # Vercelに環境変数を設定
    vercel env add GOOGLE_PROJECT_ID "your_project_id"

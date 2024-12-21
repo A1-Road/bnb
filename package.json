@@ -1,0 +1,30 @@
+{
+  "name": "bnb2",
+  "version": "1.0.0",
+  "description": "Off-chain POC for LINE and Telegram message bridging with Firestore",
+  "main": "new.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "line",
+    "telegram",
+    "firestore",
+    "webhook",
+    "messaging"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/firestore": "^6.7.0",
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2"
+  },
+  "devDependencies": {
+    "@vercel/node": "^2.15.3"
+  }
+}

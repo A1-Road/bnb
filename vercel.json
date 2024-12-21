@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/line-webhook",
+      "methods": ["POST"],
+      "dest": "/api/line-webhook.js"
+    },
+    {
+      "src": "/api/telegram-webhook",
+      "methods": ["POST"],
+      "dest": "/api/telegram-webhook.js"
+    },
+    {
+      "src": "/api/miniapp/send",
+      "methods": ["POST"],
+      "dest": "/api/miniapp-send.js"
+    }
+  ],
+  "env": {
+    "LINE_CHANNEL_ACCESS_TOKEN": "@line_channel_access_token",
+    "LINE_CHANNEL_SECRET": "@line_channel_secret",
+    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
+    "DEFAULT_LINE_USER_ID": "@default_line_user_id",
+    "DEFAULT_TELEGRAM_CHAT_ID": "@default_telegram_chat_id",
+    "GOOGLE_APPLICATION_CREDENTIALS": "@google_application_credentials",
+    "GOOGLE_PROJECT_ID": "@google_project_id",
+    "GOOGLE_SERVICE_ACCOUNT": "@google_service_account",
+    "GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER": "@google_workload_identity_pool_provider"
+  }
+}

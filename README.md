@@ -1,3 +1,260 @@
+
+
+LINE-Telegram Bridge POC
+An off-chain proof of concept for bridging messages between LINE and Telegram using Firestore for storage. This implementation focuses on creating a minimal viable product using free-tier services.
+
+Features
+Bidirectional message forwarding between LINE and Telegram
+Message persistence using Firestore
+Serverless deployment using Vercel
+Webhook-based real-time updates
+Telegram Mini App integration for enhanced user experience
+UI-based operational interface
+Simple button controls
+Mobile-friendly design
+Prerequisites
+LINE Messaging API Account
+
+Create a channel at LINE Developers Console
+Get the Channel Access Token and Channel Secret
+Telegram Bot
+
+Create a bot using BotFather
+Get the Bot Token
+Google Cloud Project
+
+Create a new project in Google Cloud Console
+Enable Firestore Database:
+Select “Firestore Database” from the side menu
+Click “Create database”
+Choose “Production mode”
+Select a location (e.g., asia-northeast1)
+Choose one of the following authentication methods:
+
+A) Using a Service Account Key:
+
+Service account setup:
+From the side menu, go to “IAM & Admin” → “Service Accounts”
+Click “Create Service Account”
+Enter a name (e.g., line-telegram-bridge)
+Select “Cloud Datastore User” as the role
+“Create Key” → select “JSON” to download the key file
+Store the downloaded JSON file in a secure place
+B) Using a Workload Identity Pool:
+
+Workload Identity Pool setup:
+From the side menu, go to “IAM & Admin” → “Workload Identity Pool”
+Click “Create Pool”
+Enter a pool name (e.g., vercel-pool)
+Add a provider:
+Provider name: vercel-provider
+Select OpenID Connect (OIDC)
+Issuer URL: https://oidc.vercel.app
+Audience: urn:vercel:deploy
+Attribute mapping:
+google.subject = assertion.sub
+google.project_id = assertion.vercel.project_id
+Service account setup:
+Create a service account (same steps as in A)
+Link with the Workload Identity Pool:
+bash
+Copy code
+gcloud iam service-accounts add-iam-policy-binding "SERVICE_ACCOUNT_EMAIL" \
+  --project="PROJECT_ID" \
+  --role="roles/iam.workloadIdentityUser" \
+  --member="principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/subject/VERCEL_PROJECT_ID"
+Vercel Account
+
+For deploying the serverless functions
+Setup
+Clone the repository and install dependencies:
+
+bash
+Copy code
+npm install
+Copy .env.example to .env and fill in your credentials:
+
+bash
+Copy code
+cp .env.example .env
+Configure environment variables in your .env file:
+
+makefile
+Copy code
+LINE_CHANNEL_ACCESS_TOKEN=your_line_channel_access_token
+LINE_CHANNEL_SECRET=your_line_channel_secret
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_MINIAPP_URL=https://your-miniapp-url.vercel.app
+DEFAULT_LINE_USER_ID=your_default_line_user_id
+DEFAULT_TELEGRAM_CHAT_ID=your_default_telegram_chat_id
+GOOGLE_APPLICATION_CREDENTIALS=path_to_your_service_account_key.json
+Set up Vercel:
+
+bash
+Copy code
+npm i -g vercel
+vercel login
+Configure Vercel environment variables:
+
+A) Using a Service Account Key:
+
+bash
+Copy code
+# Base64-encode the service account key
+base64 -i path_to_your_service_account_key.json | tr -d '\n' > google_credentials_base64.txt
+
+# Add environment variable to Vercel
+vercel secrets add google_application_credentials "$(cat google_credentials_base64.txt)"
+B) Using a Workload Identity Pool:
+
+bash
+Copy code
+# Add environment variables to Vercel
+vercel env add GOOGLE_PROJECT_ID "your_project_id"
+vercel env add GOOGLE_SERVICE_ACCOUNT "your_service_account_email"
+vercel env add GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER "projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID"
+Common environment variables:
+
+bash
+Copy code
+vercel secrets add line_channel_access_token "your_line_channel_access_token"
+vercel secrets add line_channel_secret "your_line_channel_secret"
+vercel secrets add telegram_bot_token "your_telegram_bot_token"
+vercel secrets add default_line_user_id "your_default_line_user_id"
+vercel secrets add default_telegram_chat_id "your_default_telegram_chat_id"
+Deploy to Vercel:
+
+bash
+Copy code
+npm run deploy
+Configure webhooks:
+
+LINE: Set webhook URL to https://your-vercel-app.vercel.app/api/line-webhook
+Telegram: Set webhook using:
+bash
+Copy code
+curl -F "url=https://your-vercel-app.vercel.app/api/telegram-webhook" \
+     https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook
+Development
+Run the development server:
+
+bash
+Copy code
+npm run dev
+Project Structure
+bash
+Copy code
+├── api/
+│   ├── line-webhook.js    # LINE webhook handler
+│   └── telegram-webhook.js # Telegram webhook handler (with mini app support)
+├── utils/
+│   ├── line.js           # LINE messaging utilities
+│   ├── telegram.js       # Telegram messaging utilities (with mini app button features)
+│   └── firestore.js      # Firestore database operations
+├── .env.example          # Environment variables template
+├── vercel.json           # Vercel deployment configuration
+└── package.json          # Project dependencies and scripts
+Firestore Data Structure
+Collections
+users collection
+yaml
+Copy code
+users/
+├── LINE_{userId}/
+│   ├── platform: "LINE"
+│   ├── userId: "U1234..."
+│   ├── username: null
+│   └── lastActive: Timestamp
+└── Telegram_{chatId}/
+    ├── platform: "Telegram"
+    ├── userId: "123456789"
+    ├── username: "@username"
+    └── lastActive: Timestamp
+messages collection
+sql
+Copy code
+messages/
+└── {messageId}/
+    ├── platform: "LINE" | "Telegram"
+    ├── userId: "user_id"
+    ├── message: "message content"
+    └── timestamp: Timestamp
+Data Flow
+When receiving a message:
+
+A webhook receives the message
+Save or update user information in the users collection
+Save the message in the messages collection
+When forwarding a message:
+
+Retrieve the most recently active user from the users collection
+Forward the message to the retrieved user ID
+If no recent user is found, use the default IDs in .env
+Updating user information:
+
+lastActive is automatically updated when sending messages
+Separate user records by platform
+Telegram also saves username
+How to Use the Telegram Mini App
+Starting the Bot
+
+Send the /start command in Telegram
+The bot displays a “Open Mini App” button
+Launching the Mini App
+
+Tap the displayed button to open the mini app
+The UI is shown in the built-in Telegram browser
+Sending Data
+
+Use the UI in the mini app to send messages
+The sent data is automatically saved to Firestore
+Forward to LINE if needed
+Security Considerations
+
+The mini app URL must be served over HTTPS
+Keep the Telegram Bot token secure
+Handle user data with proper caution
+Free Tier Limitations
+LINE Messaging API: 50,000 messages/month
+Telegram Bot API: Unlimited
+Firestore:
+1GB storage
+50,000 reads/day
+20,000 writes/day
+Vercel:
+100GB bandwidth/month
+Unlimited serverless function executions
+Future Enhancements
+On-chain Integration:
+
+Integration with BNB Greenfield for message storage
+Smart contract implementation for DID-CID binding
+BSC testnet deployment
+Additional Features:
+
+Message encryption
+Multi-user support
+Media message handling
+Message history viewing
+Mini app feature enhancements:
+File upload
+Real-time notifications
+Custom UI themes
+License
+ISC
+
+
+
+
+
+
+
+
+
+
+
+
+
 # LINE-Telegram Bridge POC
 
 An off-chain proof of concept for bridging messages between LINE and Telegram using Firestore for storage. This implementation focuses on creating a minimal viable product using free-tier services.
@@ -258,3 +515,6 @@ messages/
 ## License
 
 ISC
+
+
+

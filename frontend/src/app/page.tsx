@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import type { Contact } from "@/types/contact";
 import { SiTelegram, SiLine } from "react-icons/si";
+import Link from "next/link";
 
 export default function Home() {
-  const router = useRouter();
   const [chats, setChats] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -49,10 +48,10 @@ export default function Home() {
         ) : (
           <div className="divide-y divide-gray-200">
             {chats.map((chat) => (
-              <div
+              <Link
                 key={chat.id}
-                onClick={() => router.push(`/chat/${chat.id}`)}
-                className="flex items-center p-4 hover:bg-tg-theme-text/5 cursor-pointer transition-colors"
+                href={`/chat/${chat.id}`}
+                className="flex items-center p-4 w-full text-left hover:bg-tg-theme-text/5 cursor-pointer transition-colors"
               >
                 <div className="relative">
                   {chat.avatarUrl ? (
@@ -102,7 +101,7 @@ export default function Home() {
                     </p>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

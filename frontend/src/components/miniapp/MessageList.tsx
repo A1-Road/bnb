@@ -1,5 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Message } from "@/types/message";
+import { groupMessagesByDate } from "@/utils/messageGroups";
+import Image from "next/image";
 
 interface MessageListProps {
   messages: Message[];
@@ -15,6 +17,7 @@ export const MessageList = ({
   onLoadMore,
 }: Readonly<MessageListProps>) => {
   const observerTarget = useRef<HTMLDivElement>(null);
+  const messageGroups = groupMessagesByDate(messages);
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -43,12 +46,20 @@ export const MessageList = ({
       case "image":
         return (
           <div className="space-y-2">
-            <img
-              src={message.thumbnailUrl || message.mediaUrl}
-              alt={message.content}
-              className="rounded-lg max-w-[240px] cursor-pointer hover:opacity-90 transition-opacity"
+            <button
               onClick={() => window.open(message.mediaUrl, "_blank")}
-            />
+              className="block"
+            >
+              <Image
+                src={
+                  message.thumbnailUrl ?? message.mediaUrl ?? "/placeholder.png"
+                }
+                alt={message.content}
+                width={240}
+                height={180}
+                className="rounded-lg hover:opacity-90 transition-opacity"
+              />
+            </button>
             {message.content && (
               <p className="text-sm whitespace-pre-wrap break-words">
                 {message.content}
@@ -63,7 +74,15 @@ export const MessageList = ({
               src={message.mediaUrl}
               controls
               className="rounded-lg max-w-[240px]"
-            />
+            >
+              <track
+                kind="captions"
+                src="/captions/default.vtt"
+                srcLang="en"
+                label="English"
+                default
+              />
+            </video>
             {message.content && (
               <p className="text-sm whitespace-pre-wrap break-words">
                 {message.content}
@@ -94,35 +113,46 @@ export const MessageList = ({
   };
 
   return (
-    <div className="space-y-4">
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={`flex ${
-            message.platform === "Telegram" ? "justify-end" : "justify-start"
-          }`}
-        >
-          <div
-            className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-              message.platform === "Telegram"
-                ? "bg-blue-500 text-white rounded-tr-none"
-                : "bg-gray-100 text-gray-800 rounded-tl-none"
-            }`}
-          >
-            {renderMessageContent(message)}
-            <div
-              className={`text-xs mt-1 ${
-                message.platform === "Telegram"
-                  ? "text-blue-100"
-                  : "text-gray-500"
-              }`}
-            >
-              {new Date(message.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+    <div className="space-y-6">
+      {messageGroups.map(({ date, messages }) => (
+        <div key={date} className="space-y-4">
+          <div className="flex items-center justify-center">
+            <div className="px-4 py-1 rounded-full bg-gray-100 text-gray-500 text-xs">
+              {date}
             </div>
           </div>
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${
+                message.platform === "Telegram"
+                  ? "justify-end"
+                  : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                  message.platform === "Telegram"
+                    ? "bg-blue-500 text-white rounded-tr-none"
+                    : "bg-gray-100 text-gray-800 rounded-tl-none"
+                }`}
+              >
+                {renderMessageContent(message)}
+                <div
+                  className={`text-xs mt-1 ${
+                    message.platform === "Telegram"
+                      ? "text-blue-100"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {new Date(message.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ))}
       <div ref={observerTarget} className="h-4" />

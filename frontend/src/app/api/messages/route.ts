@@ -46,6 +46,12 @@ export const mockMessages: Message[] = [
   },
 ];
 
+const getMessageType = (file: File): "text" | "image" | "video" | "file" => {
+  if (file.type.startsWith("image/")) return "image";
+  if (file.type.startsWith("video/")) return "video";
+  return "file";
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const cursor = searchParams.get("cursor");
@@ -86,15 +92,10 @@ export async function POST(request: Request) {
     let type: "text" | "image" | "video" | "file" = "text";
 
     if (file) {
-      // 実際の実装ではここでファイルをストレージにアップロード
       const objectUrl = URL.createObjectURL(file);
       mediaUrl = objectUrl;
       thumbnailUrl = file.type.startsWith("image/") ? objectUrl : undefined;
-      type = file.type.startsWith("image/")
-        ? "image"
-        : file.type.startsWith("video/")
-        ? "video"
-        : "file";
+      type = getMessageType(file);
     }
 
     const newMessage: Message = {

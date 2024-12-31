@@ -13,7 +13,7 @@ export const Navigation = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-tg-theme-bg border-t border-tg-theme-button">
+    <nav className="fixed bottom-0 left-0 right-0 bg-tg-theme-bg border-t border-tg-theme-button shadow-lg backdrop-blur-lg">
       <div className="flex justify-around">
         <Link
           href="/contacts"

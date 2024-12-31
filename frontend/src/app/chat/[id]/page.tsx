@@ -56,52 +56,59 @@ export default function ChatRoom() {
 
   return (
     <div className="flex flex-col h-screen bg-tg-theme-bg">
-      {/* ヘッダー */}
+      {/* ヘッダー - fixed */}
       {contact && (
-        <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-          <div className="relative">
-            {contact.avatarUrl ? (
-              <Image
-                src={contact.avatarUrl}
-                alt={contact.name}
-                width={40}
-                height={40}
-                className="rounded-full"
+        <div className="fixed top-0 left-0 right-0 z-10 bg-tg-theme-bg border-b border-gray-200">
+          <div className="flex items-center gap-3 p-4">
+            <div className="relative">
+              {contact.avatarUrl ? (
+                <Image
+                  src={contact.avatarUrl}
+                  alt={contact.name}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-lg text-gray-500">
+                    {contact.name.charAt(0)}
+                  </span>
+                </div>
+              )}
+              <div
+                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                  new Date(contact.lastActive) > new Date(Date.now() - 300000)
+                    ? "bg-green-500"
+                    : "bg-gray-300"
+                }`}
               />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <span className="text-lg text-gray-500">
-                  {contact.name.charAt(0)}
-                </span>
+            </div>
+            <div>
+              <h1 className="font-semibold">{contact.name}</h1>
+              <div
+                className={`flex items-center gap-1 text-xs ${
+                  new Date(contact.lastActive) > new Date(Date.now() - 300000)
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {new Date(contact.lastActive) > new Date(Date.now() - 300000)
+                  ? "Online"
+                  : `Last seen ${new Date(
+                      contact.lastActive
+                    ).toLocaleString()}`}
               </div>
-            )}
-            <div
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                new Date(contact.lastActive) > new Date(Date.now() - 300000)
-                  ? "bg-green-500"
-                  : "bg-gray-300"
-              }`}
-            />
-          </div>
-          <div>
-            <h1 className="font-semibold">{contact.name}</h1>
-            <div
-              className={`flex items-center gap-1 text-xs ${
-                new Date(contact.lastActive) > new Date(Date.now() - 300000)
-                  ? "text-green-600"
-                  : "text-gray-500"
-              }`}
-            >
-              {new Date(contact.lastActive) > new Date(Date.now() - 300000)
-                ? "Online"
-                : `Last seen ${new Date(contact.lastActive).toLocaleString()}`}
             </div>
           </div>
         </div>
       )}
 
-      {/* メッセージエリア */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* ヘッダーの高さ分のスペーサー */}
+      <div className="h-[72px]" />
+
+      {/* メッセージエリア - スクロール可能 */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-[144px]">
         {(sendError ?? loadError) && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {sendError ?? loadError}
@@ -116,8 +123,8 @@ export default function ChatRoom() {
         />
       </div>
 
-      {/* 入力エリア */}
-      <div className="border-t border-gray-200 p-4">
+      {/* 入力エリア - fixed */}
+      <div className="fixed bottom-16 left-0 right-0 z-10 bg-tg-theme-bg border-t border-gray-200 p-4 shadow-lg backdrop-blur-lg">
         <MessageForm onSubmit={handleSendMessage} isLoading={isSending} />
       </div>
     </div>

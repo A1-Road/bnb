@@ -16,6 +16,7 @@ import { OnlineStatus } from "@/components/common/OnlineStatus";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useEncryption } from "@/hooks/useEncryption";
 import { KeyBackupList } from "@/components/common/KeyBackupList";
+import { KeyBackupModal } from "@/components/common/KeyBackupModal";
 
 interface PageParams {
   id: string;
@@ -46,7 +47,14 @@ export default function ChatRoom() {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
-  const { keyPair, rotateKeys, backups, restoreBackup } = useEncryption();
+  const {
+    keyPair,
+    rotateKeys,
+    backups,
+    restoreBackup,
+    showInitialBackup,
+    setShowInitialBackup,
+  } = useEncryption();
   const [contactPublicKey, setContactPublicKey] = useState<string>();
 
   const fetchContact = useCallback(async () => {
@@ -137,6 +145,11 @@ export default function ChatRoom() {
     }, 3000);
   };
 
+  const handleCloseBackupModal = () => {
+    setShowInitialBackup(false);
+    localStorage.setItem("key_backup_seen", "true");
+  };
+
   return (
     <div className="flex flex-col h-screen bg-tg-theme-bg">
       <ConnectionStatus isConnected={isConnected} />
@@ -217,6 +230,10 @@ export default function ChatRoom() {
           onTyping={handleTyping}
         />
       </div>
+
+      {showInitialBackup && keyPair && (
+        <KeyBackupModal keyPair={keyPair} onClose={handleCloseBackupModal} />
+      )}
     </div>
   );
 }

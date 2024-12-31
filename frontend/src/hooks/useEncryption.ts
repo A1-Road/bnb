@@ -13,24 +13,31 @@ interface EncryptionState {
   backups: KeyBackup[];
   rotateKeys: () => void;
   restoreBackup: (backup: KeyBackup) => void;
+  showInitialBackup: boolean;
+  setShowInitialBackup: (show: boolean) => void;
 }
 
 export const useEncryption = (): EncryptionState => {
   const [keyPair, setKeyPair] = useState<KeyPair | undefined>(undefined);
   const [backups, setBackups] = useState<KeyBackup[]>([]);
+  const [showInitialBackup, setShowInitialBackup] = useState(false);
 
   useEffect(() => {
-    // 保存された鍵を取得
     const stored = getStoredKeyPair();
+    const hasSeenBackup = localStorage.getItem("key_backup_seen") === "true";
+    const backupLater = localStorage.getItem("key_backup_later") === "true";
+
     if (stored) {
       setKeyPair(stored.keyPair);
       setBackups(listBackups());
     } else {
-      // 新しい鍵ペアを生成
       const newKeyPair = generateKeyPair();
       storeKeyPair(newKeyPair);
       setKeyPair(newKeyPair);
       setBackups(listBackups());
+      if (!hasSeenBackup && !backupLater) {
+        setShowInitialBackup(true);
+      }
     }
   }, []);
 
@@ -50,5 +57,7 @@ export const useEncryption = (): EncryptionState => {
     backups,
     rotateKeys: handleRotateKeys,
     restoreBackup,
+    showInitialBackup,
+    setShowInitialBackup,
   };
 };

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { Contact } from "@/types/contact";
 
-const mockContacts: Contact[] = [
+export const mockContacts: Contact[] = [
   {
     id: "1",
     name: "John Doe",
@@ -13,14 +13,14 @@ const mockContacts: Contact[] = [
     id: "2",
     name: "Jane Smith",
     platform: "LINE",
-    lastActive: new Date(Date.now() - 3600000).toISOString(), // 1時間前
+    lastActive: new Date(Date.now() - 3600000).toISOString(),
     lastMessage: "See you tomorrow!",
   },
   {
     id: "3",
     name: "Bob Johnson",
     platform: "Telegram",
-    lastActive: new Date(Date.now() - 86400000).toISOString(), // 1日前
+    lastActive: new Date(Date.now() - 86400000).toISOString(),
   },
 ];
 

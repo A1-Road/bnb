@@ -5,8 +5,10 @@ import WebApp from "@twa-dev/sdk";
 import type { Contact } from "@/types/contact";
 import Image from "next/image";
 import { SiTelegram, SiLine } from "react-icons/si";
+import { useRouter } from "next/navigation";
 
 export default function Contacts() {
+  const router = useRouter();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,10 +42,11 @@ export default function Contacts() {
         {contacts.map((contact) => (
           <div
             key={contact.id}
-            className={`flex items-center p-4 cursor-pointer transition-colors ${
+            onClick={() => router.push(`/chat/${contact.id}`)}
+            className={`flex items-center p-4 cursor-pointer ${
               contact.platform === "Telegram"
-                ? "hover:bg-blue-50 dark:hover:bg-blue-900/10"
-                : "hover:bg-green-50 dark:hover:bg-green-900/10"
+                ? "hover:bg-blue-50"
+                : "hover:bg-green-50"
             }`}
           >
             <div className="relative">

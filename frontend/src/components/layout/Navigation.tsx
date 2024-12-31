@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
+import { UsersIcon, HomeIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
 export const Navigation = () => {
   const pathname = usePathname();
@@ -13,29 +14,32 @@ export const Navigation = () => {
         <Link
           href="/contacts"
           className={twMerge(
-            "flex-1 py-3 text-center",
+            "flex-1 py-3 flex flex-col items-center",
             pathname === "/contacts" && "text-tg-theme-button"
           )}
         >
-          Friends
+          <UsersIcon className="w-6 h-6" />
+          <span className="text-xs mt-1">Friends</span>
         </Link>
         <Link
           href="/"
           className={twMerge(
-            "flex-1 py-3 text-center",
+            "flex-1 py-3 flex flex-col items-center",
             pathname === "/" && "text-tg-theme-button"
           )}
         >
-          Home
+          <HomeIcon className="w-6 h-6" />
+          <span className="text-xs mt-1">Home</span>
         </Link>
         <Link
           href="/profile"
           className={twMerge(
-            "flex-1 py-3 text-center",
+            "flex-1 py-3 flex flex-col items-center",
             pathname === "/profile" && "text-tg-theme-button"
           )}
         >
-          Account
+          <UserCircleIcon className="w-6 h-6" />
+          <span className="text-xs mt-1">Account</span>
         </Link>
       </div>
     </nav>

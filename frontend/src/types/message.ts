@@ -11,6 +11,10 @@ export interface Message {
   thumbnailUrl?: string;
   encrypted?: boolean;
   publicKey?: string;
+  encryptedMedia?: {
+    data: string;
+    mimeType: string;
+  };
 }
 
 export interface MessagesResponse {

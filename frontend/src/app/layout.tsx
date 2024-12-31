@@ -1,28 +1,30 @@
-import React from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Navigation } from "@/components/layout/Navigation";
+"use client";
+
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "LINE-Telegram Bridge",
-  description: "Bridge messages between LINE and Telegram",
-};
+import { Navigation } from "@/components/layout/Navigation";
+import { useEncryption } from "@/hooks/useEncryption";
+import { KeyBackupModal } from "@/components/common/KeyBackupModal";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const { keyPair, showInitialBackup, setShowInitialBackup } = useEncryption();
+
+  const handleCloseBackupModal = () => {
+    setShowInitialBackup(false);
+    localStorage.setItem("key_backup_seen", "true");
+  };
+
   return (
-    <html lang="ja">
-      <body className={inter.className}>
-        <main className="min-h-screen bg-tg-theme-bg text-tg-theme-text pb-16">
-          {children}
-        </main>
+    <html lang="en">
+      <body>
+        {children}
         <Navigation />
+        {showInitialBackup && keyPair && (
+          <KeyBackupModal keyPair={keyPair} onClose={handleCloseBackupModal} />
+        )}
       </body>
     </html>
   );

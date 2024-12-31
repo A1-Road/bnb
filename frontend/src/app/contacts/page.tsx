@@ -40,7 +40,11 @@ export default function Contacts() {
         {contacts.map((contact) => (
           <div
             key={contact.id}
-            className="flex items-center p-4 hover:bg-gray-50 cursor-pointer"
+            className={`flex items-center p-4 cursor-pointer transition-colors ${
+              contact.platform === "Telegram"
+                ? "hover:bg-blue-50 dark:hover:bg-blue-900/10"
+                : "hover:bg-green-50 dark:hover:bg-green-900/10"
+            }`}
           >
             <div className="relative">
               {contact.avatarUrl ? (

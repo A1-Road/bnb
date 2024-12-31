@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "./Button";
 import Image from "next/image";
-import WebApp from "@twa-dev/sdk";
 
 interface ProfileSetupModalProps {
   onComplete: () => void;
@@ -26,31 +25,28 @@ export const ProfileSetupModal = ({ onComplete }: ProfileSetupModalProps) => {
   });
 
   const handlePhotoUpload = () => {
-    WebApp.showPopup(
-      {
-        title: "Upload Photo",
-        message: "Choose a profile photo",
-        buttons: [
-          { id: "camera", type: "default", text: "Take Photo" },
-          { id: "gallery", type: "default", text: "Choose from Gallery" },
-          { id: "cancel", type: "cancel" },
-        ],
-      },
-      (buttonId) => {
-        if (buttonId === "camera" || buttonId === "gallery") {
-          // 実際のアプリではここでファイル選択を実装
-          setProfile((prev) => ({
-            ...prev,
-            photo: "https://picsum.photos/200",
-          }));
-        }
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        setProfile((prev) => ({
+          ...prev,
+          photo: url,
+        }));
       }
-    );
+    };
+    input.click();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // ここでプロフィール情報を保存
+    if (!profile.name || !profile.username) {
+      alert("Name and Username are required");
+      return;
+    }
     setStep("complete");
   };
 
@@ -105,7 +101,7 @@ export const ProfileSetupModal = ({ onComplete }: ProfileSetupModalProps) => {
           <div className="space-y-4">
             <input
               type="text"
-              placeholder="Name"
+              placeholder="Name *"
               value={profile.name}
               onChange={(e) =>
                 setProfile((prev) => ({ ...prev, name: e.target.value }))
@@ -115,7 +111,7 @@ export const ProfileSetupModal = ({ onComplete }: ProfileSetupModalProps) => {
             />
             <input
               type="text"
-              placeholder="Username"
+              placeholder="Username *"
               value={profile.username}
               onChange={(e) =>
                 setProfile((prev) => ({ ...prev, username: e.target.value }))
@@ -125,16 +121,15 @@ export const ProfileSetupModal = ({ onComplete }: ProfileSetupModalProps) => {
             />
             <input
               type="tel"
-              placeholder="Phone Number"
+              placeholder="Phone Number (optional)"
               value={profile.phone}
               onChange={(e) =>
                 setProfile((prev) => ({ ...prev, phone: e.target.value }))
               }
               className="w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
-              required
             />
             <textarea
-              placeholder="Bio"
+              placeholder="Bio (optional)"
               value={profile.bio}
               onChange={(e) =>
                 setProfile((prev) => ({ ...prev, bio: e.target.value }))

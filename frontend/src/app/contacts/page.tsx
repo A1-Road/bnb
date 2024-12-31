@@ -67,7 +67,18 @@ export default function Contacts() {
             </div>
             <div className="ml-4 flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">{contact.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium">{contact.name}</h3>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded ${
+                      contact.platform === "Telegram"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {contact.platform}
+                  </span>
+                </div>
                 <span className="text-xs text-gray-500">
                   {new Date(contact.lastActive).toLocaleString()}
                 </span>

@@ -1,9 +1,12 @@
 export interface Contact {
   id: string;
   name: string;
-  platform: "LINE" | "Telegram";
+  username: string;
   avatarUrl?: string;
-  lastMessage?: string;
+  lastSeen: string;
+  lastMessage: string;
+  unreadCount: number;
+  isOnline: boolean;
+  platform: "Telegram" | "LINE";
   lastActive: string;
-  lastMessageTime?: string;
 }

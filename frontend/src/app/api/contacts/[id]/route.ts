@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { mockContacts } from "../route";
+import { mockContacts } from "@/mocks/data";
 
 export async function GET(
   request: Request,

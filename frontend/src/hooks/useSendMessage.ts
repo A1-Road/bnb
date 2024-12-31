@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { encryptMessage, encryptFile } from "@/utils/encryption";
+import type { Message } from "@/types/message";
 import type { KeyPair } from "@/utils/encryption";
 
 interface SendMessageOptions {
@@ -8,71 +8,72 @@ interface SendMessageOptions {
   recipientPublicKey?: string;
 }
 
+const getMessageType = (file?: File) => {
+  if (!file) return "text";
+  return file.type.startsWith("image/") ? "image" : "file";
+};
+
 export const useSendMessage = () => {
+  const [pendingMessages, setPendingMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const sendMessage = async (
-    message: string,
+    content: string,
     file?: File,
     options?: SendMessageOptions
   ) => {
     setIsLoading(true);
     setError(null);
+    const tempId = `temp-${Date.now()}`;
+    const messageType = getMessageType(file);
+
+    const newMessage: Message = {
+      id: tempId,
+      content,
+      type: messageType,
+      senderId: "user1", // 現在のユーザーID
+      senderName: "Current User",
+      timestamp: new Date().toISOString(),
+      isEncrypted: !!options?.encrypt,
+      status: "sending" as const,
+    };
+
+    setPendingMessages((prev) => [...prev, newMessage]);
 
     try {
-      const formData = new FormData();
-
-      // メッセージの暗号化
-      if (options?.encrypt && options.keyPair && options.recipientPublicKey) {
-        // テキストの暗号化
-        const encryptedContent = encryptMessage(
-          message,
-          options.keyPair.privateKey,
-          options.recipientPublicKey
-        );
-        formData.append("message", encryptedContent);
-        formData.append("encrypted", "true");
-        formData.append("publicKey", options.keyPair.publicKey);
-
-        // ファイルの暗号化
-        if (file) {
-          if (file.size > 10 * 1024 * 1024) {
-            throw new Error("File size should be less than 10MB");
-          }
-          const encryptedFile = await encryptFile(
-            file,
-            options.keyPair.privateKey,
-            options.recipientPublicKey
-          );
-          formData.append("encryptedData", encryptedFile.encryptedData);
-          formData.append("mimeType", encryptedFile.mimeType);
-        }
-      } else {
-        formData.append("message", message);
-        if (file) formData.append("file", file);
-      }
-
+      // メッセージ送信処理
       const response = await fetch("/api/messages", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify({ message: newMessage, file }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to send message");
-      }
+      if (!response.ok) throw new Error("Failed to send message");
 
-      return await response.json();
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "エラーが発生しました";
-      setError(errorMessage);
-      throw err;
+      const data = await response.json();
+      setPendingMessages((prev) => prev.filter((msg) => msg.id !== tempId));
+      return { ...data, status: "sent" };
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to send");
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { sendMessage, isLoading, error };
+  return {
+    sendMessage,
+    pendingMessages,
+    retryMessage: (messageId: string) => {
+      const message = pendingMessages.find((msg) => msg.id === messageId);
+      if (message) {
+        // 再送信処理
+        sendMessage(message.content ?? "", undefined, {
+          encrypt: message.isEncrypted,
+        });
+      }
+    },
+    isLoading,
+    error,
+  };
 };

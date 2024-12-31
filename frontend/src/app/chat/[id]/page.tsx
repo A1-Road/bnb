@@ -3,18 +3,16 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import WebApp from "@twa-dev/sdk";
-import { MessageForm } from "@/components/miniapp/MessageForm";
 import { MessageList } from "@/components/miniapp/MessageList";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useMessages } from "@/hooks/useMessages";
 import type { Contact } from "@/types/contact";
-import Image from "next/image";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { ConnectionStatus } from "@/components/common/ConnectionStatus";
-import { TypingIndicator } from "@/components/common/TypingIndicator";
-import { OnlineStatus } from "@/components/common/OnlineStatus";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useEncryption } from "@/hooks/useEncryption";
+import { ChatLayout } from "@/components/layout/ChatLayout";
+import { ChatHeader } from "@/components/chat/ChatHeader";
+import { ChatInput } from "@/components/chat/ChatInput";
 
 interface PageParams {
   id: string;
@@ -37,11 +35,9 @@ export default function ChatRoom() {
     loadMore,
     refetch,
   } = useMessages(params.id);
-  const {
-    isConnected,
-    lastMessage,
-    sendMessage: sendWebSocketMessage,
-  } = useWebSocket(params.id);
+  const { lastMessage, sendMessage: sendWebSocketMessage } = useWebSocket(
+    params.id
+  );
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
@@ -137,58 +133,22 @@ export default function ChatRoom() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-tg-theme-bg">
-      <ConnectionStatus isConnected={isConnected} />
-      {/* ヘッダー - fixed */}
-      {contact && (
-        <div className="fixed top-0 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-b border-tg-border">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                {contact.avatarUrl ? (
-                  <Image
-                    src={contact.avatarUrl}
-                    alt={contact.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-lg text-gray-500">
-                      {contact.name.charAt(0)}
-                    </span>
-                  </div>
-                )}
-                <div
-                  className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                    isUserOnline(contact.id) ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                />
-              </div>
-              <div>
-                <h1 className="font-semibold">{contact.name}</h1>
-                <OnlineStatus
-                  isOnline={isUserOnline(contact.id)}
-                  lastSeen={onlineStatus[contact.id]?.lastSeen}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ヘッダーの高さ分のスペーサー */}
-      <div className="h-[72px]" />
-
-      {/* メッセージエリア - スクロール可能 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-[144px]">
-        {(sendError ?? loadError) && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <ChatLayout
+      header={
+        <ChatHeader
+          contact={contact}
+          isOnline={isUserOnline(contact?.id ?? "")}
+          lastSeen={contact ? onlineStatus[contact.id]?.lastSeen : undefined}
+        />
+      }
+      error={
+        (sendError ?? loadError) && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-2">
             {sendError ?? loadError}
           </div>
-        )}
-
+        )
+      }
+      messages={
         <MessageList
           messages={messages}
           hasMore={hasMore}
@@ -197,17 +157,16 @@ export default function ChatRoom() {
           keyPair={keyPair}
           contactPublicKey={contactPublicKey}
         />
-      </div>
-
-      {/* 入力エリア - fixed */}
-      <div className="fixed bottom-16 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-t border-tg-border p-4">
-        <TypingIndicator isTyping={isTyping} name={contact?.name ?? ""} />
-        <MessageForm
-          onSubmit={handleSendMessage}
+      }
+      input={
+        <ChatInput
+          isTyping={isTyping}
+          contactName={contact?.name ?? ""}
           isLoading={isSending}
+          onSubmit={handleSendMessage}
           onTyping={handleTyping}
         />
-      </div>
-    </div>
+      }
+    />
   );
 }

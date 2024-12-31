@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import { generateKeyPair } from "@/utils/encryption";
-
-const MOCK_KEYS = new Map<string, string>();
+import { mockKeys } from "@/mocks/data";
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  if (!MOCK_KEYS.has(params.id)) {
+  if (!mockKeys.has(params.id)) {
     const keyPair = generateKeyPair();
-    MOCK_KEYS.set(params.id, keyPair.publicKey);
+    mockKeys.set(params.id, keyPair.publicKey);
   }
 
-  return NextResponse.json({ publicKey: MOCK_KEYS.get(params.id) });
+  return NextResponse.json({ publicKey: mockKeys.get(params.id) });
 }

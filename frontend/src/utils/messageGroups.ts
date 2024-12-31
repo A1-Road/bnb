@@ -1,14 +1,11 @@
 import type { Message } from "@/types/message";
 
-type MessageGroup = {
-  date: string;
-  messages: Message[];
-};
+type MessageGroup = [string, Message[]];
 
-export const groupMessagesByDate = (messages: Message[]): MessageGroup[] => {
-  const groups: { [key: string]: Message[] } = {};
+export function groupMessagesByDate(messages: Message[] = []): MessageGroup[] {
+  if (!messages?.length) return [];
 
-  messages.forEach((message) => {
+  const groups = messages.reduce((acc, message) => {
     const date = new Date(message.timestamp);
     const today = new Date();
     const yesterday = new Date(today);
@@ -20,21 +17,21 @@ export const groupMessagesByDate = (messages: Message[]): MessageGroup[] => {
     } else if (date.toDateString() === yesterday.toDateString()) {
       dateString = "Yesterday";
     } else {
-      dateString = date.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+      dateString = date.toLocaleDateString();
     }
 
-    if (!groups[dateString]) {
-      groups[dateString] = [];
+    if (!acc[dateString]) {
+      acc[dateString] = [];
     }
-    groups[dateString].push(message);
+    acc[dateString].push(message);
+    return acc;
+  }, {} as Record<string, Message[]>);
+
+  return Object.entries(groups).sort((a, b) => {
+    if (a[0] === "Today") return 1;
+    if (b[0] === "Today") return -1;
+    if (a[0] === "Yesterday") return 1;
+    if (b[0] === "Yesterday") return -1;
+    return new Date(b[0]).getTime() - new Date(a[0]).getTime();
   });
-
-  return Object.entries(groups).map(([date, messages]) => ({
-    date,
-    messages,
-  }));
-};
+}

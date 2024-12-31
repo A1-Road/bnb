@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import { mockMessages } from "@/mocks/data";
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   const { searchParams } = new URL(request.url);
   const cursor = searchParams.get("cursor");
   const limit = parseInt(searchParams.get("limit") ?? "20");
 
-  let messages = [...mockMessages];
+  // 特定のユーザーとの会話を取得（送信者または受信者が指定されたIDの場合）
+  let messages = mockMessages.filter(
+    (m) => m.senderId === params.id || m.senderId === "user1"
+  );
+
   if (cursor) {
     const cursorIndex = messages.findIndex((m) => m.id === cursor);
     if (cursorIndex !== -1) {

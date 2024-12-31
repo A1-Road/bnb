@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Message, MessagesResponse } from "@/types/message";
-import {
-  cacheMessages,
-  getCachedMessages,
-  updateMessageCache,
-} from "@/utils/messageCache";
+import { cacheMessages, getCachedMessages } from "@/utils/messageCache";
 
 export const useMessages = (contactId: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -12,11 +8,20 @@ export const useMessages = (contactId: string) => {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [nextCursor, setNextCursor] = useState<string>();
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   const fetchMessages = useCallback(
     async (cursor?: string) => {
+      if (retryCount >= MAX_RETRIES) {
+        setError("Maximum retry attempts reached");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
+        setError(null);
         const url = `/api/messages/${contactId}`;
         const queryUrl = cursor ? `${url}?cursor=${cursor}` : url;
         const response = await fetch(queryUrl);
@@ -24,44 +29,55 @@ export const useMessages = (contactId: string) => {
         if (!response.ok) throw new Error("Failed to fetch messages");
 
         const data: MessagesResponse = await response.json();
+        setRetryCount(0);
 
-        const newMessages = cursor
-          ? [...messages, ...data.messages]
-          : data.messages;
-
-        setMessages(newMessages);
+        setMessages((prev) =>
+          cursor ? [...prev, ...data.messages] : data.messages
+        );
         setHasMore(data.hasMore);
         setNextCursor(data.nextCursor);
 
-        // 最初のページのみキャッシュ
         if (!cursor) {
           cacheMessages(contactId, data.messages);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "エラーが発生しました");
-        // キャッシュからメッセージを読み込む
+        console.error("Error fetching messages:", err);
+        setRetryCount((prev) => prev + 1);
+
         const cached = getCachedMessages(contactId);
         if (cached) {
           setMessages(cached);
           setHasMore(false);
         }
+
+        setError(err instanceof Error ? err.message : "エラーが発生しました");
       } finally {
         setIsLoading(false);
       }
     },
-    [contactId, messages]
+    [contactId, retryCount]
   );
 
   useEffect(() => {
-    // まずキャッシュをチェック
-    const cached = getCachedMessages(contactId);
-    if (cached) {
-      setMessages(cached);
-      setIsLoading(false);
-    }
-    // その後APIから最新データを取得
-    fetchMessages();
-  }, [contactId, fetchMessages]);
+    const initializeMessages = async () => {
+      setIsLoading(true);
+      const cached = getCachedMessages(contactId);
+
+      if (cached) {
+        setMessages(cached);
+        setIsLoading(false);
+      }
+
+      try {
+        await fetchMessages();
+      } catch (error) {
+        console.error("Failed to fetch initial messages:", error);
+      }
+    };
+
+    initializeMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contactId]);
 
   const loadMore = useCallback(() => {
     if (hasMore && !isLoading && nextCursor) {
@@ -69,21 +85,15 @@ export const useMessages = (contactId: string) => {
     }
   }, [hasMore, isLoading, nextCursor, fetchMessages]);
 
-  const addMessage = useCallback(
-    (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-      updateMessageCache(contactId, message);
-    },
-    [contactId]
-  );
-
   return {
     messages,
     isLoading,
     error,
     hasMore,
     loadMore,
-    addMessage,
-    refetch: useCallback(() => fetchMessages(), [fetchMessages]),
+    refetch: useCallback(() => {
+      setRetryCount(0);
+      return fetchMessages();
+    }, [fetchMessages]),
   };
 };

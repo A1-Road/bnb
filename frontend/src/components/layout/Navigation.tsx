@@ -11,13 +11,22 @@ export const Navigation = () => {
     <nav className="fixed bottom-0 left-0 right-0 bg-tg-theme-bg border-t border-tg-theme-button">
       <div className="flex justify-around">
         <Link
+          href="/contacts"
+          className={twMerge(
+            "flex-1 py-3 text-center",
+            pathname === "/contacts" && "text-tg-theme-button"
+          )}
+        >
+          Friends
+        </Link>
+        <Link
           href="/"
           className={twMerge(
             "flex-1 py-3 text-center",
             pathname === "/" && "text-tg-theme-button"
           )}
         >
-          ホーム
+          Home
         </Link>
         <Link
           href="/settings"
@@ -26,7 +35,7 @@ export const Navigation = () => {
             pathname === "/settings" && "text-tg-theme-button"
           )}
         >
-          設定
+          Account
         </Link>
       </div>
     </nav>

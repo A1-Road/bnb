@@ -4,17 +4,20 @@ export const useSendMessage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sendMessage = async (message: string) => {
+  const sendMessage = async (message: string, file?: File) => {
     setIsLoading(true);
     setError(null);
 
     try {
+      const formData = new FormData();
+      formData.append("message", message);
+      if (file) {
+        formData.append("file", file);
+      }
+
       const response = await fetch("/api/messages", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
+        body: formData,
       });
 
       if (!response.ok) {

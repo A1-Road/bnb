@@ -162,7 +162,6 @@ export default function ChatRoom() {
       }
       input={
         <ChatInput
-          isTyping={isTyping}
           contactName={contact?.name ?? ""}
           isLoading={isSending}
           onSubmit={handleSendMessage}

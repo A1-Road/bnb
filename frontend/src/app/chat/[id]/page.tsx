@@ -37,7 +37,7 @@ export default function ChatRoom() {
     hasMore,
     loadMore,
     refetch,
-  } = useMessages();
+  } = useMessages(params.id);
   const {
     isConnected,
     lastMessage,

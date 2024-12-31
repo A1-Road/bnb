@@ -11,7 +11,12 @@ export const useSendMessage = () => {
     try {
       const formData = new FormData();
       formData.append("message", message);
+
       if (file) {
+        // ファイルサイズのチェック (例: 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error("File size should be less than 10MB");
+        }
         formData.append("file", file);
       }
 
@@ -21,12 +26,15 @@ export const useSendMessage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to send message");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to send message");
       }
 
       return await response.json();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました");
+      const errorMessage =
+        err instanceof Error ? err.message : "エラーが発生しました";
+      setError(errorMessage);
       throw err;
     } finally {
       setIsLoading(false);

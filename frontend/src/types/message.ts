@@ -9,6 +9,8 @@ export interface Message {
   type: MessageType;
   mediaUrl?: string;
   thumbnailUrl?: string;
+  encrypted?: boolean;
+  publicKey?: string;
 }
 
 export interface MessagesResponse {

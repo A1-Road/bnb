@@ -2,6 +2,7 @@ import type { Message } from "@/types/message";
 import Image from "next/image";
 import { decryptMessage, decryptFile } from "@/utils/encryption";
 import type { KeyPair } from "@/utils/encryption";
+import { useState, useEffect } from "react";
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,9 +15,12 @@ export const MessageBubble = ({
   keyPair,
   contactPublicKey,
 }: Readonly<MessageBubbleProps>) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const renderContent = () => {
     let content = message.content ?? "";
     let mediaUrl = message.mediaUrl;
+    let objectUrl: string | null = null;
 
     if (
       message.isEncrypted &&
@@ -39,22 +43,42 @@ export const MessageBubble = ({
           message.publicKey
         );
         if (decryptedFile) {
-          mediaUrl = URL.createObjectURL(decryptedFile);
+          objectUrl = URL.createObjectURL(decryptedFile);
+          mediaUrl = objectUrl;
         }
       }
     }
+
+    useEffect(() => {
+      return () => {
+        if (objectUrl) {
+          URL.revokeObjectURL(objectUrl);
+        }
+      };
+    }, [objectUrl]);
 
     switch (message.type) {
       case "image":
         return (
           <div className="space-y-2">
-            <Image
-              src={mediaUrl ?? "/placeholder.png"}
-              alt={content}
-              width={240}
-              height={180}
-              className="rounded-lg"
-            />
+            <div className="relative aspect-video w-full max-w-[240px]">
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />
+              )}
+              <Image
+                src={mediaUrl ?? "/placeholder.png"}
+                alt={content}
+                width={240}
+                height={180}
+                className={`rounded-lg transition-opacity duration-200 ${
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                loading="lazy"
+                sizes="(max-width: 240px) 100vw, 240px"
+                quality={75}
+              />
+            </div>
             {content && (
               <p className="text-sm whitespace-pre-wrap break-words">
                 {content}

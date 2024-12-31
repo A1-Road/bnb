@@ -35,9 +35,63 @@ export const MessageList = ({
     });
 
     observer.observe(element);
-
     return () => observer.disconnect();
   }, [handleObserver]);
+
+  const renderMessageContent = (message: Message) => {
+    switch (message.type) {
+      case "image":
+        return (
+          <div className="space-y-2">
+            <img
+              src={message.thumbnailUrl || message.mediaUrl}
+              alt={message.content}
+              className="rounded-lg max-w-[240px] cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => window.open(message.mediaUrl, "_blank")}
+            />
+            {message.content && (
+              <p className="text-sm whitespace-pre-wrap break-words">
+                {message.content}
+              </p>
+            )}
+          </div>
+        );
+      case "video":
+        return (
+          <div className="space-y-2">
+            <video
+              src={message.mediaUrl}
+              controls
+              className="rounded-lg max-w-[240px]"
+            />
+            {message.content && (
+              <p className="text-sm whitespace-pre-wrap break-words">
+                {message.content}
+              </p>
+            )}
+          </div>
+        );
+      case "file":
+        return (
+          <div className="flex items-center gap-2">
+            <a
+              href={message.mediaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              📎 {message.content}
+            </a>
+          </div>
+        );
+      default:
+        return (
+          <p className="text-sm whitespace-pre-wrap break-words">
+            {message.content}
+          </p>
+        );
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -55,23 +109,7 @@ export const MessageList = ({
                 : "bg-gray-100 text-gray-800 rounded-tl-none"
             }`}
           >
-            {message.type === "text" ? (
-              <p className="text-sm whitespace-pre-wrap break-words">
-                {message.content}
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {message.thumbnailUrl && (
-                  <img
-                    src={message.thumbnailUrl}
-                    alt="Media"
-                    className="rounded-lg max-w-full"
-                    onClick={() => window.open(message.mediaUrl, "_blank")}
-                  />
-                )}
-                <p className="text-sm">{message.content}</p>
-              </div>
-            )}
+            {renderMessageContent(message)}
             <div
               className={`text-xs mt-1 ${
                 message.platform === "Telegram"

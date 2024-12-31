@@ -15,6 +15,7 @@ import { TypingIndicator } from "@/components/common/TypingIndicator";
 import { OnlineStatus } from "@/components/common/OnlineStatus";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useEncryption } from "@/hooks/useEncryption";
+import { KeyBackupList } from "@/components/common/KeyBackupList";
 
 interface PageParams {
   id: string;
@@ -45,7 +46,7 @@ export default function ChatRoom() {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
-  const keyPair = useEncryption();
+  const { keyPair, rotateKeys, backups, restoreBackup } = useEncryption();
   const [contactPublicKey, setContactPublicKey] = useState<string>();
 
   const fetchContact = useCallback(async () => {
@@ -105,7 +106,7 @@ export default function ChatRoom() {
     try {
       const result = await sendMessage(message, file, {
         encrypt: true,
-        keyPair,
+        keyPair: keyPair,
         recipientPublicKey: contactPublicKey,
       });
       sendWebSocketMessage("message", {
@@ -142,36 +143,46 @@ export default function ChatRoom() {
       {/* ヘッダー - fixed */}
       {contact && (
         <div className="fixed top-0 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-b border-tg-border">
-          <div className="flex items-center gap-3 p-4">
-            <div className="relative">
-              {contact.avatarUrl ? (
-                <Image
-                  src={contact.avatarUrl}
-                  alt={contact.name}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                {contact.avatarUrl ? (
+                  <Image
+                    src={contact.avatarUrl}
+                    alt={contact.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-lg text-gray-500">
+                      {contact.name.charAt(0)}
+                    </span>
+                  </div>
+                )}
+                <div
+                  className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                    isUserOnline(contact.id) ? "bg-green-500" : "bg-gray-300"
+                  }`}
                 />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-lg text-gray-500">
-                    {contact.name.charAt(0)}
-                  </span>
-                </div>
-              )}
-              <div
-                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                  isUserOnline(contact.id) ? "bg-green-500" : "bg-gray-300"
-                }`}
-              />
+              </div>
+              <div>
+                <h1 className="font-semibold">{contact.name}</h1>
+                <OnlineStatus
+                  isOnline={isUserOnline(contact.id)}
+                  lastSeen={onlineStatus[contact.id]?.lastSeen}
+                />
+              </div>
             </div>
-            <div>
-              <h1 className="font-semibold">{contact.name}</h1>
-              <OnlineStatus
-                isOnline={isUserOnline(contact.id)}
-                lastSeen={onlineStatus[contact.id]?.lastSeen}
-              />
-            </div>
+            <button
+              onClick={rotateKeys}
+              className="text-xs text-gray-500 hover:text-gray-700"
+              title="Rotate encryption keys"
+            >
+              🔄
+            </button>
+            <KeyBackupList backups={backups} onRestore={restoreBackup} />
           </div>
         </div>
       )}

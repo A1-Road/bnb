@@ -1,23 +1,54 @@
 import { useState, useEffect } from "react";
 import { generateKeyPair, type KeyPair } from "@/utils/encryption";
+import {
+  getStoredKeyPair,
+  storeKeyPair,
+  rotateKeyPair,
+  listBackups,
+  type KeyBackup,
+} from "@/utils/keyManagement";
 
-const KEY_STORAGE_KEY = "encryption_keys";
+interface EncryptionState {
+  keyPair: KeyPair | undefined;
+  backups: KeyBackup[];
+  rotateKeys: () => void;
+  restoreBackup: (backup: KeyBackup) => void;
+}
 
-export const useEncryption = () => {
+export const useEncryption = (): EncryptionState => {
   const [keyPair, setKeyPair] = useState<KeyPair | undefined>(undefined);
+  const [backups, setBackups] = useState<KeyBackup[]>([]);
 
   useEffect(() => {
-    // ローカルストレージからキーペアを取得
-    const storedKeys = localStorage.getItem(KEY_STORAGE_KEY);
-    if (storedKeys) {
-      setKeyPair(JSON.parse(storedKeys));
+    // 保存された鍵を取得
+    const stored = getStoredKeyPair();
+    if (stored) {
+      setKeyPair(stored.keyPair);
+      setBackups(listBackups());
     } else {
-      // 新しいキーペアを生成
+      // 新しい鍵ペアを生成
       const newKeyPair = generateKeyPair();
-      localStorage.setItem(KEY_STORAGE_KEY, JSON.stringify(newKeyPair));
+      storeKeyPair(newKeyPair);
       setKeyPair(newKeyPair);
+      setBackups(listBackups());
     }
   }, []);
 
-  return keyPair;
+  const handleRotateKeys = () => {
+    const newKeyPair = rotateKeyPair();
+    setKeyPair(newKeyPair);
+    setBackups(listBackups());
+  };
+
+  const restoreBackup = (backup: KeyBackup) => {
+    storeKeyPair(backup.keyPair);
+    setKeyPair(backup.keyPair);
+  };
+
+  return {
+    keyPair,
+    backups,
+    rotateKeys: handleRotateKeys,
+    restoreBackup,
+  };
 };

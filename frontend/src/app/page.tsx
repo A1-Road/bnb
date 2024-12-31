@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-tg-theme-bg">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-tg-theme-bg border-b border-gray-200">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-b border-tg-border">
         <div className="p-4">
           <h1 className="text-xl font-semibold">Chats</h1>
         </div>

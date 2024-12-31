@@ -5,4 +5,5 @@ export interface Contact {
   avatarUrl?: string;
   lastMessage?: string;
   lastActive: string;
+  lastMessageTime?: string;
 }

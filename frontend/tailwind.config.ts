@@ -11,6 +11,13 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "tg-theme": {
+          bg: "var(--tg-theme-bg-color)",
+          text: "var(--tg-theme-text-color)",
+          button: "var(--tg-theme-button-color)",
+          "button-text": "var(--tg-theme-button-text-color)",
+        },
+        "tg-border": "rgba(0, 0, 0, 0.1)", // 薄いグレーのボーダー用
       },
     },
   },

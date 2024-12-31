@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 import {
   UsersIcon,
-  HomeIcon,
+  ChatBubbleLeftRightIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 
@@ -13,7 +13,7 @@ export const Navigation = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-tg-theme-bg border-t border-tg-theme-button shadow-lg backdrop-blur-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-tg-theme-bg border-t border-tg-border shadow-lg backdrop-blur-lg">
       <div className="flex justify-around">
         <Link
           href="/contacts"
@@ -34,8 +34,8 @@ export const Navigation = () => {
             pathname === "/" && "text-tg-theme-button"
           )}
         >
-          <HomeIcon className="w-6 h-6" />
-          <span className="text-xs mt-1">Home</span>
+          <ChatBubbleLeftRightIcon className="w-6 h-6" />
+          <span className="text-xs mt-1">Chats</span>
         </Link>
         <Link
           href="/profile"

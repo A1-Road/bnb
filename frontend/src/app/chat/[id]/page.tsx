@@ -58,7 +58,7 @@ export default function ChatRoom() {
     <div className="flex flex-col h-screen bg-tg-theme-bg">
       {/* ヘッダー - fixed */}
       {contact && (
-        <div className="fixed top-0 left-0 right-0 z-10 bg-tg-theme-bg border-b border-gray-200">
+        <div className="fixed top-0 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-b border-tg-border">
           <div className="flex items-center gap-3 p-4">
             <div className="relative">
               {contact.avatarUrl ? (
@@ -124,7 +124,7 @@ export default function ChatRoom() {
       </div>
 
       {/* 入力エリア - fixed */}
-      <div className="fixed bottom-16 left-0 right-0 z-10 bg-tg-theme-bg border-t border-gray-200 p-4 shadow-lg backdrop-blur-lg">
+      <div className="fixed bottom-16 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-t border-tg-border p-4">
         <MessageForm onSubmit={handleSendMessage} isLoading={isSending} />
       </div>
     </div>

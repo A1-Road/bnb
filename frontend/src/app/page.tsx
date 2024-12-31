@@ -41,9 +41,9 @@ export default function Home() {
     <div className="min-h-screen bg-tg-theme-bg text-tg-theme-text p-4">
       <h1 className="text-2xl font-bold mb-4">LINE-Telegram Bridge</h1>
 
-      {(sendError || loadError) && (
+      {(sendError ?? loadError) && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {sendError || loadError}
+          {sendError ?? loadError}
         </div>
       )}
 

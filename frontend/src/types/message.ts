@@ -10,3 +10,9 @@ export interface Message {
   mediaUrl?: string;
   thumbnailUrl?: string;
 }
+
+export interface MessagesResponse {
+  messages: Message[];
+  hasMore: boolean;
+  nextCursor?: string;
+}

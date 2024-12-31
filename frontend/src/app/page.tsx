@@ -17,6 +17,8 @@ export default function Home() {
     messages,
     isLoading: isLoadingMessages,
     error: loadError,
+    hasMore,
+    loadMore,
     refetch,
   } = useMessages();
 
@@ -46,11 +48,12 @@ export default function Home() {
         </div>
       )}
 
-      {isLoadingMessages ? (
-        <div className="text-center py-4">読み込み中...</div>
-      ) : (
-        <MessageList messages={messages} />
-      )}
+      <MessageList
+        messages={messages}
+        hasMore={hasMore}
+        isLoading={isLoadingMessages}
+        onLoadMore={loadMore}
+      />
 
       <MessageForm onSubmit={handleSendMessage} isLoading={isSending} />
     </div>

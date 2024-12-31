@@ -4,6 +4,32 @@ import type { Message } from "@/types/message";
 export const useMessageScroll = (messages: Message[], isLoading: boolean) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
+  const scrollPositionRef = useRef<number>(0);
+
+  // スクロール位置の保存
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      scrollPositionRef.current = scrollRef.current.scrollTop;
+    }
+  };
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // ローディング後のスクロール位置復元
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || isLoading) return;
+
+    if (scrollPositionRef.current > 0) {
+      container.scrollTop = scrollPositionRef.current;
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     const container = scrollRef.current;

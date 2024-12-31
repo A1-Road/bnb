@@ -13,6 +13,7 @@ import { useEncryption } from "@/hooks/useEncryption";
 import { ChatLayout } from "@/components/layout/ChatLayout";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatInput } from "@/components/chat/ChatInput";
+import { useMessageScroll } from "@/hooks/useMessageScroll";
 
 interface PageParams {
   id: string;
@@ -43,6 +44,7 @@ export default function ChatRoom() {
   const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
   const { keyPair } = useEncryption();
   const [contactPublicKey, setContactPublicKey] = useState<string>();
+  const scrollRef = useMessageScroll(messages, isLoadingMessages);
 
   const fetchContact = useCallback(async () => {
     try {
@@ -150,12 +152,14 @@ export default function ChatRoom() {
       }
       messages={
         <MessageList
+          ref={scrollRef}
           messages={messages}
           hasMore={hasMore}
           isLoading={isLoadingMessages}
           onLoadMore={loadMore}
           keyPair={keyPair}
           contactPublicKey={contactPublicKey}
+          isTyping={isTyping}
         />
       }
       input={

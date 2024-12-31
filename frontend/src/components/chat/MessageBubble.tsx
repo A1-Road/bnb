@@ -16,11 +16,19 @@ export const MessageBubble = ({
   contactPublicKey,
 }: Readonly<MessageBubbleProps>) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [objectUrl]);
 
   const renderContent = () => {
     let content = message.content ?? "";
     let mediaUrl = message.mediaUrl;
-    let objectUrl: string | null = null;
 
     if (
       message.isEncrypted &&
@@ -43,19 +51,12 @@ export const MessageBubble = ({
           message.publicKey
         );
         if (decryptedFile) {
-          objectUrl = URL.createObjectURL(decryptedFile);
-          mediaUrl = objectUrl;
+          const newObjectUrl = URL.createObjectURL(decryptedFile);
+          setObjectUrl(newObjectUrl);
+          mediaUrl = newObjectUrl;
         }
       }
     }
-
-    useEffect(() => {
-      return () => {
-        if (objectUrl) {
-          URL.revokeObjectURL(objectUrl);
-        }
-      };
-    }, [objectUrl]);
 
     switch (message.type) {
       case "image":
@@ -114,6 +115,27 @@ export const MessageBubble = ({
     }
   };
 
+  const renderStatus = () => {
+    switch (message.status) {
+      case "sending":
+        return <span className="ml-1 text-xs text-gray-400">⏳</span>;
+      case "sent":
+        return <span className="ml-1 text-xs text-gray-400">✓</span>;
+      case "delivered":
+        return <span className="ml-1 text-xs text-gray-400">✓✓</span>;
+      case "read":
+        return <span className="ml-1 text-xs text-blue-400">✓✓</span>;
+      case "error":
+        return (
+          <span className="ml-1 text-xs text-red-500" title={message.error}>
+            ⚠️
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
       className={`flex ${
@@ -128,6 +150,7 @@ export const MessageBubble = ({
         }`}
       >
         {renderContent()}
+        {renderStatus()}
       </div>
     </div>
   );

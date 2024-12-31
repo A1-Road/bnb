@@ -7,6 +7,7 @@ interface MessageGroupProps {
   messages: Message[];
   keyPair?: KeyPair;
   contactPublicKey?: string;
+  isTyping: boolean;
 }
 
 export const MessageGroup = ({
@@ -14,15 +15,12 @@ export const MessageGroup = ({
   messages,
   keyPair,
   contactPublicKey,
+  isTyping,
 }: Readonly<MessageGroupProps>) => {
   return (
-    <div>
-      <div className="sticky top-2 flex items-center justify-center">
-        <div className="px-4 py-1 rounded-full bg-gray-100 text-gray-500 text-xs">
-          {date}
-        </div>
-      </div>
-      <div className="space-y-3 mt-3">
+    <div className="space-y-4">
+      <div className="text-xs text-center text-gray-500">{date}</div>
+      <div className="space-y-2">
         {messages.map((message) => (
           <MessageBubble
             key={message.id}
@@ -31,6 +29,13 @@ export const MessageGroup = ({
             contactPublicKey={contactPublicKey}
           />
         ))}
+        {isTyping && (
+          <div className="flex items-center space-x-2 text-gray-500">
+            <div className="animate-bounce">•</div>
+            <div className="animate-bounce delay-100">•</div>
+            <div className="animate-bounce delay-200">•</div>
+          </div>
+        )}
       </div>
     </div>
   );

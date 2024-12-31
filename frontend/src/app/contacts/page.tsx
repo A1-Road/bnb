@@ -18,7 +18,7 @@ export default function Contacts() {
   const fetchContacts = async () => {
     try {
       const response = await fetch("/api/contacts");
-      if (!response.ok) throw new Error("連絡先の取得に失敗しました");
+      if (!response.ok) throw new Error("Failed to fetch contacts");
       const data = await response.json();
       setContacts(data);
     } catch (err) {
@@ -29,7 +29,7 @@ export default function Contacts() {
   };
 
   if (isLoading) {
-    return <div className="p-4">読み込み中...</div>;
+    return <div className="p-4">Loading...</div>;
   }
 
   return (

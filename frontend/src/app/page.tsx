@@ -32,11 +32,11 @@ export default function Home() {
   const handleSendMessage = async (message: string) => {
     try {
       await sendMessage(message);
-      WebApp.showAlert("メッセージを送信しました");
-      refetch(); // メッセージ一覧を更新
+      WebApp.showAlert("Message sent successfully");
+      refetch(); // Update message list
     } catch (err) {
       console.error(err);
-      WebApp.showAlert("エラーが発生しました");
+      WebApp.showAlert("An error occurred");
     }
   };
 
@@ -45,7 +45,7 @@ export default function Home() {
       <h1 className="text-2xl font-bold mb-4">
         LINE-Telegram Bridge
         {!isConnected && (
-          <span className="text-red-500 text-sm ml-2">未接続</span>
+          <span className="text-red-500 text-sm ml-2">Offline</span>
         )}
       </h1>
 

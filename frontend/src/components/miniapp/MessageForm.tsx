@@ -47,7 +47,7 @@ export const MessageForm = ({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="w-full p-3 rounded-lg bg-tg-theme-bg border border-tg-theme-button text-tg-theme-text"
-            placeholder="メッセージを入力..."
+            placeholder="Type a message..."
             rows={3}
           />
         </div>
@@ -57,7 +57,7 @@ export const MessageForm = ({
             type="submit"
             disabled={isLoading || (!message.trim() && !selectedFile)}
           >
-            {isLoading ? "送信中..." : "送信"}
+            {isLoading ? "Sending..." : "Send"}
           </Button>
         </div>
       </div>

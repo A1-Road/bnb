@@ -57,7 +57,7 @@ export const MessageList = ({
               {message.thumbnailUrl && (
                 <img
                   src={message.thumbnailUrl}
-                  alt="メディアのサムネイル"
+                  alt="Media thumbnail"
                   className="rounded-lg max-w-full"
                 />
               )}
@@ -70,7 +70,7 @@ export const MessageList = ({
         </div>
       ))}
       <div ref={observerTarget} className="h-4" />
-      {isLoading && <div className="text-center py-4">読み込み中...</div>}
+      {isLoading && <div className="text-center py-4">Loading...</div>}
     </div>
   );
 };

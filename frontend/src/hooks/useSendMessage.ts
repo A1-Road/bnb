@@ -21,7 +21,7 @@ export const useSendMessage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("メッセージの送信に失敗しました");
+        throw new Error("Failed to send message");
       }
 
       return await response.json();

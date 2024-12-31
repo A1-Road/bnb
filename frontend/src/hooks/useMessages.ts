@@ -15,7 +15,7 @@ export const useMessages = (limit = 20) => {
       if (cursor) url.searchParams.append("cursor", cursor);
 
       const response = await fetch(url);
-      if (!response.ok) throw new Error("メッセージの取得に失敗しました");
+      if (!response.ok) throw new Error("Failed to fetch messages");
 
       const data: MessagesResponse = await response.json();
 
@@ -28,7 +28,7 @@ export const useMessages = (limit = 20) => {
       setHasMore(data.hasMore);
       setNextCursor(data.nextCursor);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました");
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }

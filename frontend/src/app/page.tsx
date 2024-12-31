@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
-import Image from "next/image";
 import type { Contact } from "@/types/contact";
 import { SiTelegram, SiLine } from "react-icons/si";
 import Link from "next/link";
+import { UserAvatar } from "@/components/common/UserAvatar";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 export default function Home() {
   const [chats, setChats] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isUserOnline } = useOnlineStatus();
 
   useEffect(() => {
     WebApp.ready();
@@ -53,30 +55,11 @@ export default function Home() {
                 href={`/chat/${chat.id}`}
                 className="flex items-center p-4 w-full text-left hover:bg-tg-theme-text/5 cursor-pointer transition-colors"
               >
-                <div className="relative">
-                  {chat.avatarUrl ? (
-                    <Image
-                      src={chat.avatarUrl}
-                      alt={chat.name}
-                      width={48}
-                      height={48}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-lg text-gray-500">
-                        {chat.name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                  <div
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                      new Date(chat.lastActive) > new Date(Date.now() - 300000)
-                        ? "bg-green-500"
-                        : "bg-gray-300"
-                    }`}
-                  />
-                </div>
+                <UserAvatar
+                  name={chat.name}
+                  avatarUrl={chat.avatarUrl}
+                  isOnline={isUserOnline(chat.id)}
+                />
 
                 <div className="ml-4 flex-1 min-w-0">
                   <div className="flex items-center justify-between">

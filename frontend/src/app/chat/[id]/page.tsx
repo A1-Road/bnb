@@ -139,9 +139,7 @@ export default function ChatRoom() {
               )}
               <div
                 className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                  new Date(contact.lastActive) > new Date(Date.now() - 300000)
-                    ? "bg-green-500"
-                    : "bg-gray-300"
+                  isUserOnline(contact.id) ? "bg-green-500" : "bg-gray-300"
                 }`}
               />
             </div>

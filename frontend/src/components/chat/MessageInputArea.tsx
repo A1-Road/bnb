@@ -3,17 +3,17 @@ import { useEffect, useRef } from "react";
 interface MessageInputAreaProps {
   message: string;
   onChange: (message: string) => void;
-  onSubmit: () => void;
   onTyping?: () => void;
-  placeholder: string;
+  handleKeyDown: (e: React.KeyboardEvent) => void;
+  placeholder?: string;
   disabled?: boolean;
 }
 
 export const MessageInputArea = ({
   message,
   onChange,
-  onSubmit,
   onTyping,
+  handleKeyDown,
   placeholder,
   disabled,
 }: MessageInputAreaProps) => {
@@ -39,7 +39,7 @@ export const MessageInputArea = ({
       onKeyDown={(e) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
-          onSubmit();
+          handleKeyDown(e);
         }
       }}
       placeholder={placeholder}

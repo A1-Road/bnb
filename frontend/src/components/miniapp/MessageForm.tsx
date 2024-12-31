@@ -53,11 +53,9 @@ export const MessageForm = ({
       )}
       <MessageFormContainer onSubmit={(e) => e.preventDefault()}>
         <MessageInputArea
-          content={content}
-          setContent={setContent}
+          message={content}
+          onChange={setContent}
           handleKeyDown={handleKeyDown}
-          isLoading={isLoading}
-          onFileSelect={setSelectedFile}
         />
         <SendButton
           onClick={handleSubmit}

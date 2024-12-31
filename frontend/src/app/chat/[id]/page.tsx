@@ -12,6 +12,8 @@ import Image from "next/image";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { ConnectionStatus } from "@/components/common/ConnectionStatus";
 import { TypingIndicator } from "@/components/common/TypingIndicator";
+import { OnlineStatus } from "@/components/common/OnlineStatus";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 interface PageParams {
   id: string;
@@ -41,6 +43,7 @@ export default function ChatRoom() {
   } = useWebSocket(params.id);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
 
   const fetchContact = useCallback(async () => {
     try {
@@ -73,6 +76,12 @@ export default function ChatRoom() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (lastMessage?.type === "status") {
+      updateStatus(lastMessage);
+    }
+  }, [lastMessage, updateStatus]);
 
   const handleSendMessage = async (message: string, file?: File) => {
     try {
@@ -138,19 +147,10 @@ export default function ChatRoom() {
             </div>
             <div>
               <h1 className="font-semibold">{contact.name}</h1>
-              <div
-                className={`flex items-center gap-1 text-xs ${
-                  new Date(contact.lastActive) > new Date(Date.now() - 300000)
-                    ? "text-green-600"
-                    : "text-gray-500"
-                }`}
-              >
-                {new Date(contact.lastActive) > new Date(Date.now() - 300000)
-                  ? "Online"
-                  : `Last seen ${new Date(
-                      contact.lastActive
-                    ).toLocaleString()}`}
-              </div>
+              <OnlineStatus
+                isOnline={isUserOnline(contact.id)}
+                lastSeen={onlineStatus[contact.id]?.lastSeen}
+              />
             </div>
           </div>
         </div>

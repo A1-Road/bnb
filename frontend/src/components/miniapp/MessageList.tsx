@@ -40,37 +40,57 @@ export const MessageList = ({
   }, [handleObserver]);
 
   return (
-    <div className="space-y-4 mb-4">
+    <div className="space-y-4">
       {messages.map((message) => (
         <div
           key={message.id}
-          className={`p-3 rounded-lg ${
-            message.platform === "Telegram"
-              ? "bg-tg-theme-button text-tg-theme-button-text ml-auto"
-              : "bg-gray-100 text-gray-800"
-          } max-w-[80%]`}
+          className={`flex ${
+            message.platform === "Telegram" ? "justify-end" : "justify-start"
+          }`}
         >
-          {message.type === "text" ? (
-            <p className="text-sm">{message.content}</p>
-          ) : (
-            <div className="space-y-2">
-              {message.thumbnailUrl && (
-                <img
-                  src={message.thumbnailUrl}
-                  alt="Media thumbnail"
-                  className="rounded-lg max-w-full"
-                />
-              )}
-              <p className="text-sm">{message.content}</p>
+          <div
+            className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+              message.platform === "Telegram"
+                ? "bg-blue-500 text-white rounded-tr-none"
+                : "bg-gray-100 text-gray-800 rounded-tl-none"
+            }`}
+          >
+            {message.type === "text" ? (
+              <p className="text-sm whitespace-pre-wrap break-words">
+                {message.content}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {message.thumbnailUrl && (
+                  <img
+                    src={message.thumbnailUrl}
+                    alt="Media"
+                    className="rounded-lg max-w-full"
+                    onClick={() => window.open(message.mediaUrl, "_blank")}
+                  />
+                )}
+                <p className="text-sm">{message.content}</p>
+              </div>
+            )}
+            <div
+              className={`text-xs mt-1 ${
+                message.platform === "Telegram"
+                  ? "text-blue-100"
+                  : "text-gray-500"
+              }`}
+            >
+              {new Date(message.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </div>
-          )}
-          <div className="text-xs mt-1 opacity-70">
-            {new Date(message.timestamp).toLocaleString()}
           </div>
         </div>
       ))}
       <div ref={observerTarget} className="h-4" />
-      {isLoading && <div className="text-center py-4">Loading...</div>}
+      {isLoading && (
+        <div className="text-center py-4 text-gray-500">Loading...</div>
+      )}
     </div>
   );
 };

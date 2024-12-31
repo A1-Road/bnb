@@ -26,41 +26,41 @@ export const MessageForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {selectedFile && (
-        <div className="relative">
-          <div className="p-2 bg-gray-100 rounded-lg">
-            <p className="text-sm truncate">{selectedFile.name}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSelectedFile(null)}
-            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full"
-          >
-            ×
-          </button>
-        </div>
-      )}
-      <div className="flex items-end space-x-2">
-        <div className="flex-1">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full p-3 rounded-lg bg-tg-theme-bg border border-tg-theme-button text-tg-theme-text"
-            placeholder="Type a message..."
-            rows={3}
-          />
-        </div>
-        <div className="flex space-x-2">
-          <FileUpload onFileSelect={setSelectedFile} disabled={isLoading} />
-          <Button
-            type="submit"
-            disabled={isLoading || (!message.trim() && !selectedFile)}
-          >
-            {isLoading ? "Sending..." : "Send"}
-          </Button>
-        </div>
+    <form onSubmit={handleSubmit} className="flex items-end gap-2">
+      <div className="flex-1 relative">
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full p-3 pr-12 rounded-2xl bg-gray-100 text-gray-800 resize-none"
+          placeholder="Type a message..."
+          rows={1}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
+        />
+        <FileUpload
+          onFileSelect={setSelectedFile}
+          disabled={isLoading}
+          className="absolute right-2 bottom-2"
+        />
       </div>
+      <Button
+        type="submit"
+        disabled={isLoading || (!message.trim() && !selectedFile)}
+        className="rounded-full p-3"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-6 h-6"
+        >
+          <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+        </svg>
+      </Button>
     </form>
   );
 };

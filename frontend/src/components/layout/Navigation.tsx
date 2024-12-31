@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import { UsersIcon, HomeIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import {
+  UsersIcon,
+  HomeIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
 
 export const Navigation = () => {
   const pathname = usePathname();
@@ -14,7 +18,8 @@ export const Navigation = () => {
         <Link
           href="/contacts"
           className={twMerge(
-            "flex-1 py-3 flex flex-col items-center",
+            "flex-1 py-3 flex flex-col items-center transition-colors",
+            "hover:bg-tg-theme-button/10",
             pathname === "/contacts" && "text-tg-theme-button"
           )}
         >
@@ -24,7 +29,8 @@ export const Navigation = () => {
         <Link
           href="/"
           className={twMerge(
-            "flex-1 py-3 flex flex-col items-center",
+            "flex-1 py-3 flex flex-col items-center transition-colors",
+            "hover:bg-tg-theme-button/10",
             pathname === "/" && "text-tg-theme-button"
           )}
         >
@@ -34,7 +40,8 @@ export const Navigation = () => {
         <Link
           href="/profile"
           className={twMerge(
-            "flex-1 py-3 flex flex-col items-center",
+            "flex-1 py-3 flex flex-col items-center transition-colors",
+            "hover:bg-tg-theme-button/10",
             pathname === "/profile" && "text-tg-theme-button"
           )}
         >

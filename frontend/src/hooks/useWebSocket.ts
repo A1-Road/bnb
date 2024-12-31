@@ -13,16 +13,24 @@ export const useWebSocket = (userId: string) => {
 
   const connect = useCallback(() => {
     try {
-      const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL ?? "");
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+      if (!wsUrl) {
+        console.error("WebSocket URL is not configured");
+        return;
+      }
+
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
+        console.log("WebSocket connected");
         setIsConnected(true);
         reconnectAttemptsRef.current = 0;
         ws.send(JSON.stringify({ type: "init", userId }));
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        console.log("WebSocket closed:", event.code, event.reason);
         setIsConnected(false);
         if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
           reconnectTimeoutRef.current = setTimeout(() => {
@@ -32,9 +40,11 @@ export const useWebSocket = (userId: string) => {
         }
       };
 
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        ws.close();
+      ws.onerror = () => {
+        console.log("WebSocket error occurred");
+        if (wsRef.current) {
+          wsRef.current.close();
+        }
       };
 
       ws.onmessage = (event) => {
@@ -45,8 +55,8 @@ export const useWebSocket = (userId: string) => {
           console.error("Failed to parse WebSocket message:", err);
         }
       };
-    } catch (error) {
-      console.error("Failed to connect to WebSocket:", error);
+    } catch {
+      console.error("Failed to establish WebSocket connection");
       if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
         reconnectTimeoutRef.current = setTimeout(() => {
           reconnectAttemptsRef.current += 1;

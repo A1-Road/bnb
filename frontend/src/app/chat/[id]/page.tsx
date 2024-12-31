@@ -15,7 +15,6 @@ import { TypingIndicator } from "@/components/common/TypingIndicator";
 import { OnlineStatus } from "@/components/common/OnlineStatus";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useEncryption } from "@/hooks/useEncryption";
-import { KeyBackupList } from "@/components/common/KeyBackupList";
 import { KeyBackupModal } from "@/components/common/KeyBackupModal";
 
 interface PageParams {
@@ -47,14 +46,7 @@ export default function ChatRoom() {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
-  const {
-    keyPair,
-    rotateKeys,
-    backups,
-    restoreBackup,
-    showInitialBackup,
-    setShowInitialBackup,
-  } = useEncryption();
+  const { keyPair, showInitialBackup, setShowInitialBackup } = useEncryption();
   const [contactPublicKey, setContactPublicKey] = useState<string>();
 
   const fetchContact = useCallback(async () => {
@@ -188,14 +180,6 @@ export default function ChatRoom() {
                 />
               </div>
             </div>
-            <button
-              onClick={rotateKeys}
-              className="text-xs text-gray-500 hover:text-gray-700"
-              title="Rotate encryption keys"
-            >
-              🔄
-            </button>
-            <KeyBackupList backups={backups} onRestore={restoreBackup} />
           </div>
         </div>
       )}

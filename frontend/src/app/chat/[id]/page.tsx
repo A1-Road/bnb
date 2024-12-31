@@ -9,9 +9,16 @@ import { useSendMessage } from "@/hooks/useSendMessage";
 import { useMessages } from "@/hooks/useMessages";
 import type { Contact } from "@/types/contact";
 import Image from "next/image";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { ConnectionStatus } from "@/components/common/ConnectionStatus";
+
+interface PageParams {
+  id: string;
+  [key: string]: string | string[];
+}
 
 export default function ChatRoom() {
-  const params = useParams();
+  const params = useParams<PageParams>();
   const [contact, setContact] = useState<Contact | null>(null);
   const {
     sendMessage,
@@ -26,6 +33,11 @@ export default function ChatRoom() {
     loadMore,
     refetch,
   } = useMessages();
+  const {
+    isConnected,
+    lastMessage,
+    sendMessage: sendWebSocketMessage,
+  } = useWebSocket(params.id);
 
   useEffect(() => {
     WebApp.ready();
@@ -33,29 +45,41 @@ export default function ChatRoom() {
     fetchContact();
   }, []);
 
+  useEffect(() => {
+    if (lastMessage?.type === "message") {
+      refetch();
+    }
+  }, [lastMessage, refetch]);
+
   const fetchContact = async () => {
     try {
       const response = await fetch(`/api/contacts/${params.id}`);
       if (!response.ok) throw new Error("Failed to fetch contact");
       const data = await response.json();
       setContact(data);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Error fetching contact:", error);
+      WebApp.showAlert("Failed to load contact information");
     }
   };
 
-  const handleSendMessage = async (message: string) => {
+  const handleSendMessage = async (message: string, file?: File) => {
     try {
-      await sendMessage(message);
-      WebApp.showAlert("Message sent successfully");
+      const result = await sendMessage(message, file);
+      sendWebSocketMessage("message", {
+        userId: params.id,
+        message: result,
+      });
       refetch();
-    } catch (err) {
+    } catch (error) {
+      console.error("Error sending message:", error);
       WebApp.showAlert("An error occurred");
     }
   };
 
   return (
     <div className="flex flex-col h-screen bg-tg-theme-bg">
+      <ConnectionStatus isConnected={isConnected} />
       {/* ヘッダー - fixed */}
       {contact && (
         <div className="fixed top-0 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-b border-tg-border">

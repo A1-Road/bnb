@@ -1,20 +1,22 @@
+import { Button } from "./Button";
+
 interface SetupCompleteModalProps {
-  onClose: () => void;
+  onComplete: () => void;
 }
 
-export const SetupCompleteModal = ({ onClose }: SetupCompleteModalProps) => {
+export const SetupCompleteModal = ({ onComplete }: SetupCompleteModalProps) => {
   return (
-    <div className="text-center space-y-4">
-      <h2 className="text-xl font-semibold">Setup Complete!</h2>
-      <p className="text-gray-600">
-        Your profile has been set up successfully.
-      </p>
-      <button
-        onClick={onClose}
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-      >
-        Get Started
-      </button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full space-y-4 text-center">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="text-2xl">✓</span>
+        </div>
+        <h2 className="text-2xl font-semibold">You&apos;re all set!</h2>
+        <p className="text-gray-600">Let&apos;s start your journey.</p>
+        <Button onClick={onComplete} className="w-full max-w-xs animate-pulse">
+          Tap to start
+        </Button>
+      </div>
     </div>
   );
 };

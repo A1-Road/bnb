@@ -1,5 +1,6 @@
 import { Button } from "../common/Button";
 import { KeyBackupModal } from "../common/KeyBackupModal";
+import type { KeyPair } from "@/utils/encryption";
 
 interface KeyGenerationStepProps {
   isGenerating: boolean;
@@ -7,6 +8,7 @@ interface KeyGenerationStepProps {
   setShowBackupModal: (show: boolean) => void;
   onGenerateKeys: () => void;
   onComplete: () => void;
+  keyPair: KeyPair;
 }
 
 export const KeyGenerationStep = ({
@@ -15,6 +17,7 @@ export const KeyGenerationStep = ({
   setShowBackupModal,
   onGenerateKeys,
   onComplete,
+  keyPair,
 }: KeyGenerationStepProps) => {
   return (
     <div className="space-y-4">
@@ -33,6 +36,7 @@ export const KeyGenerationStep = ({
         <KeyBackupModal
           onClose={() => setShowBackupModal(false)}
           onComplete={onComplete}
+          keyPair={keyPair}
         />
       )}
     </div>

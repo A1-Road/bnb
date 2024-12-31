@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { encryptMessage } from "@/utils/encryption";
+import { encryptMessage, encryptFile } from "@/utils/encryption";
 import type { KeyPair } from "@/utils/encryption";
 
 interface SendMessageOptions {
@@ -25,6 +25,7 @@ export const useSendMessage = () => {
 
       // メッセージの暗号化
       if (options?.encrypt && options.keyPair && options.recipientPublicKey) {
+        // テキストの暗号化
         const encryptedContent = encryptMessage(
           message,
           options.keyPair.privateKey,
@@ -33,15 +34,23 @@ export const useSendMessage = () => {
         formData.append("message", encryptedContent);
         formData.append("encrypted", "true");
         formData.append("publicKey", options.keyPair.publicKey);
+
+        // ファイルの暗号化
+        if (file) {
+          if (file.size > 10 * 1024 * 1024) {
+            throw new Error("File size should be less than 10MB");
+          }
+          const encryptedFile = await encryptFile(
+            file,
+            options.keyPair.privateKey,
+            options.recipientPublicKey
+          );
+          formData.append("encryptedData", encryptedFile.encryptedData);
+          formData.append("mimeType", encryptedFile.mimeType);
+        }
       } else {
         formData.append("message", message);
-      }
-
-      if (file) {
-        if (file.size > 10 * 1024 * 1024) {
-          throw new Error("File size should be less than 10MB");
-        }
-        formData.append("file", file);
+        if (file) formData.append("file", file);
       }
 
       const response = await fetch("/api/messages", {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Message } from "@/types/message";
 import { groupMessagesByDate } from "@/utils/messageGroups";
-import { decryptMessage } from "@/utils/encryption";
+import { decryptMessage, decryptFile } from "@/utils/encryption";
 import type { KeyPair } from "@/utils/encryption";
 import Image from "next/image";
 
@@ -49,18 +49,29 @@ export const MessageList = ({
 
   const renderMessageContent = (message: Message) => {
     let content = message.content;
+    let mediaUrl = message.mediaUrl;
 
-    // 暗号化メッセージの復号化
+    // メッセージの復号化
     if (message.encrypted && message.publicKey && keyPair && contactPublicKey) {
+      // テキストの復号化
       const decrypted = decryptMessage(
         content,
         keyPair.privateKey,
         message.publicKey
       );
-      if (decrypted) {
-        content = decrypted;
-      } else {
-        content = "メッセージを復号化できませんでした";
+      if (decrypted) content = decrypted;
+
+      // メディアの復号化
+      if (message.encryptedMedia) {
+        const decryptedFile = decryptFile(
+          message.encryptedMedia.data,
+          message.encryptedMedia.mimeType,
+          keyPair.privateKey,
+          message.publicKey
+        );
+        if (decryptedFile) {
+          mediaUrl = URL.createObjectURL(decryptedFile);
+        }
       }
     }
 
@@ -73,9 +84,7 @@ export const MessageList = ({
               className="block"
             >
               <Image
-                src={
-                  message.thumbnailUrl ?? message.mediaUrl ?? "/placeholder.png"
-                }
+                src={mediaUrl ?? "/placeholder.png"}
                 alt={message.content}
                 width={240}
                 height={180}
@@ -95,11 +104,7 @@ export const MessageList = ({
       case "video":
         return (
           <div className="space-y-2">
-            <video
-              src={message.mediaUrl}
-              controls
-              className="rounded-lg max-w-[240px]"
-            >
+            <video src={mediaUrl} controls className="rounded-lg max-w-[240px]">
               <track
                 kind="captions"
                 src="/captions/default.vtt"

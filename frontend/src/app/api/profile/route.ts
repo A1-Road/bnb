@@ -6,6 +6,10 @@ const mockProfile = {
   username: "johndoe",
   platform: "Telegram",
   bio: "Hello, I'm using LINE-Telegram Bridge!",
+  connectedPlatforms: {
+    telegram: true,
+    line: false,
+  },
 };
 
 export async function GET() {

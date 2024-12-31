@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
 import Image from "next/image";
 
+// アイコンをインポート
+import { SiTelegram, SiLine } from "react-icons/si";
+
 interface Profile {
   id: string;
   name: string;
@@ -11,6 +14,10 @@ interface Profile {
   avatarUrl?: string;
   platform: "LINE" | "Telegram";
   bio?: string;
+  connectedPlatforms: {
+    telegram?: boolean;
+    line?: boolean;
+  };
 }
 
 export default function Profile() {
@@ -67,8 +74,31 @@ export default function Profile() {
           <p className="text-gray-500">@{profile.username}</p>
         )}
         {profile.bio && <p className="text-center">{profile.bio}</p>}
-        <div className="text-sm text-gray-500">
-          Connected via {profile.platform}
+
+        <div className="w-full max-w-md mt-8">
+          <h2 className="text-lg font-semibold mb-4">Attested Socials</h2>
+          <div className="flex gap-4">
+            <div
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                profile.connectedPlatforms?.telegram
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-100 text-gray-400"
+              }`}
+            >
+              <SiTelegram className="w-5 h-5" />
+              <span>Telegram</span>
+            </div>
+            <div
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                profile.connectedPlatforms?.line
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-400"
+              }`}
+            >
+              <SiLine className="w-5 h-5" />
+              <span>LINE</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

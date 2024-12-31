@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
 import type { Contact } from "@/types/contact";
 import Image from "next/image";
+import { SiTelegram, SiLine } from "react-icons/si";
 
 export default function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -70,12 +71,17 @@ export default function Contacts() {
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium">{contact.name}</h3>
                   <span
-                    className={`text-xs px-2 py-0.5 rounded ${
+                    className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded ${
                       contact.platform === "Telegram"
                         ? "bg-blue-100 text-blue-700"
                         : "bg-green-100 text-green-700"
                     }`}
                   >
+                    {contact.platform === "Telegram" ? (
+                      <SiTelegram className="w-3.5 h-3.5" />
+                    ) : (
+                      <SiLine className="w-3.5 h-3.5" />
+                    )}
                     {contact.platform}
                   </span>
                 </div>

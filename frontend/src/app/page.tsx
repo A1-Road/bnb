@@ -2,67 +2,28 @@
 
 import { useEffect } from "react";
 import WebApp from "@twa-dev/sdk";
-import { MessageForm } from "@/components/miniapp/MessageForm";
-import { MessageList } from "@/components/miniapp/MessageList";
-import { useSendMessage } from "@/hooks/useSendMessage";
-import { useMessages } from "@/hooks/useMessages";
-import { useNotifications } from "@/hooks/useNotifications";
 
 export default function Home() {
-  const {
-    sendMessage,
-    isLoading: isSending,
-    error: sendError,
-  } = useSendMessage();
-  const {
-    messages,
-    isLoading: isLoadingMessages,
-    error: loadError,
-    hasMore,
-    loadMore,
-    refetch,
-  } = useMessages();
-  const { isConnected } = useNotifications();
-
   useEffect(() => {
     WebApp.ready();
     WebApp.expand();
   }, []);
 
-  const handleSendMessage = async (message: string) => {
-    try {
-      await sendMessage(message);
-      WebApp.showAlert("Message sent successfully");
-      refetch(); // Update message list
-    } catch (err) {
-      console.error(err);
-      WebApp.showAlert("An error occurred");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-tg-theme-bg text-tg-theme-text p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        LINE-Telegram Bridge
-        {!isConnected && (
-          <span className="text-red-500 text-sm ml-2">Offline</span>
-        )}
-      </h1>
-
-      {(sendError ?? loadError) && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {sendError ?? loadError}
+    <div className="flex flex-col h-screen bg-tg-theme-bg">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-tg-theme-bg border-b border-gray-200">
+        <div className="p-4">
+          <h1 className="text-xl font-semibold">Home</h1>
         </div>
-      )}
+      </div>
 
-      <MessageList
-        messages={messages}
-        hasMore={hasMore}
-        isLoading={isLoadingMessages}
-        onLoadMore={loadMore}
-      />
+      {/* ヘッダーの高さ分のスペーサー */}
+      <div className="h-[60px]" />
 
-      <MessageForm onSubmit={handleSendMessage} isLoading={isSending} />
+      {/* コンテンツエリア */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* ここに新しいコンテンツを追加していきます */}
+      </div>
     </div>
   );
 }

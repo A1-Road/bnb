@@ -29,10 +29,10 @@ export const Navigation = () => {
           Home
         </Link>
         <Link
-          href="/settings"
+          href="/profile"
           className={twMerge(
             "flex-1 py-3 text-center",
-            pathname === "/settings" && "text-tg-theme-button"
+            pathname === "/profile" && "text-tg-theme-button"
           )}
         >
           Account

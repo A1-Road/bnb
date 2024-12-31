@@ -76,23 +76,45 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const formData = await request.formData();
-  const message = formData.get("message") as string;
-  const file = formData.get("file") as File | null;
+  try {
+    const formData = await request.formData();
+    const message = formData.get("message") as string;
+    const file = formData.get("file") as File | null;
 
-  const newMessage: Message = {
-    id: (mockMessages.length + 1).toString(),
-    content: message,
-    timestamp: new Date().toISOString(),
-    platform: "Telegram",
-    userId: "1",
-    type: file ? "image" : "text",
-    ...(file && {
-      mediaUrl: URL.createObjectURL(file),
-      thumbnailUrl: URL.createObjectURL(file),
-    }),
-  };
+    let mediaUrl: string | undefined;
+    let thumbnailUrl: string | undefined;
+    let type: "text" | "image" | "video" | "file" = "text";
 
-  mockMessages.push(newMessage);
-  return NextResponse.json(newMessage);
+    if (file) {
+      // 実際の実装ではここでファイルをストレージにアップロード
+      const objectUrl = URL.createObjectURL(file);
+      mediaUrl = objectUrl;
+      thumbnailUrl = file.type.startsWith("image/") ? objectUrl : undefined;
+      type = file.type.startsWith("image/")
+        ? "image"
+        : file.type.startsWith("video/")
+        ? "video"
+        : "file";
+    }
+
+    const newMessage: Message = {
+      id: (mockMessages.length + 1).toString(),
+      content: message,
+      timestamp: new Date().toISOString(),
+      platform: "Telegram",
+      userId: "1",
+      type,
+      ...(mediaUrl && { mediaUrl }),
+      ...(thumbnailUrl && { thumbnailUrl }),
+    };
+
+    mockMessages.push(newMessage);
+    return NextResponse.json(newMessage);
+  } catch (error) {
+    console.error("Error processing message:", error);
+    return new NextResponse(
+      JSON.stringify({ message: "Failed to process message" }),
+      { status: 500 }
+    );
+  }
 }

@@ -29,6 +29,7 @@ export default function Settings() {
       });
       WebApp.showAlert("設定を保存しました");
     } catch (err) {
+      console.error(err);
       WebApp.showAlert("設定の保存に失敗しました");
     } finally {
       setIsSaving(false);

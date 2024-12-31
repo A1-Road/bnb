@@ -31,6 +31,7 @@ export default function Home() {
       WebApp.showAlert("メッセージを送信しました");
       refetch(); // メッセージ一覧を更新
     } catch (err) {
+      console.error(err);
       WebApp.showAlert("エラーが発生しました");
     }
   };

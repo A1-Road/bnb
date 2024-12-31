@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import WebApp from "@twa-dev/sdk";
 import { MessageForm } from "@/components/miniapp/MessageForm";
@@ -11,6 +11,7 @@ import type { Contact } from "@/types/contact";
 import Image from "next/image";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { ConnectionStatus } from "@/components/common/ConnectionStatus";
+import { TypingIndicator } from "@/components/common/TypingIndicator";
 
 interface PageParams {
   id: string;
@@ -38,20 +39,10 @@ export default function ChatRoom() {
     lastMessage,
     sendMessage: sendWebSocketMessage,
   } = useWebSocket(params.id);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    WebApp.ready();
-    WebApp.expand();
-    fetchContact();
-  }, []);
-
-  useEffect(() => {
-    if (lastMessage?.type === "message") {
-      refetch();
-    }
-  }, [lastMessage, refetch]);
-
-  const fetchContact = async () => {
+  const fetchContact = useCallback(async () => {
     try {
       const response = await fetch(`/api/contacts/${params.id}`);
       if (!response.ok) throw new Error("Failed to fetch contact");
@@ -61,7 +52,27 @@ export default function ChatRoom() {
       console.error("Error fetching contact:", error);
       WebApp.showAlert("Failed to load contact information");
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    WebApp.ready();
+    WebApp.expand();
+    fetchContact();
+  }, [fetchContact, params.id]);
+
+  useEffect(() => {
+    if (lastMessage?.type === "message") {
+      refetch();
+    }
+  }, [lastMessage, refetch]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSendMessage = async (message: string, file?: File) => {
     try {
@@ -75,6 +86,23 @@ export default function ChatRoom() {
       console.error("Error sending message:", error);
       WebApp.showAlert("An error occurred");
     }
+  };
+
+  const handleTyping = () => {
+    if (!isTyping) {
+      setIsTyping(true);
+      sendWebSocketMessage("typing", { userId: params.id, isTyping: true });
+    }
+
+    // 3秒間タイピングがないとタイピング状態を解除
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      sendWebSocketMessage("typing", { userId: params.id, isTyping: false });
+    }, 3000);
   };
 
   return (
@@ -149,7 +177,12 @@ export default function ChatRoom() {
 
       {/* 入力エリア - fixed */}
       <div className="fixed bottom-16 left-0 right-0 z-10 bg-[var(--tg-theme-bg-color)] border-t border-tg-border p-4">
-        <MessageForm onSubmit={handleSendMessage} isLoading={isSending} />
+        <TypingIndicator isTyping={isTyping} name={contact?.name ?? ""} />
+        <MessageForm
+          onSubmit={handleSendMessage}
+          isLoading={isSending}
+          onTyping={handleTyping}
+        />
       </div>
     </div>
   );

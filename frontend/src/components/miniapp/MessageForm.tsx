@@ -7,11 +7,13 @@ import { FileUpload } from "@/components/common/FileUpload";
 interface MessageFormProps {
   onSubmit: (message: string, file?: File) => Promise<void>;
   isLoading: boolean;
+  onTyping?: () => void;
 }
 
 export const MessageForm = ({
   onSubmit,
   isLoading,
+  onTyping,
 }: Readonly<MessageFormProps>) => {
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -67,7 +69,10 @@ export const MessageForm = ({
         <div className="flex-1 relative">
           <textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              onTyping?.();
+            }}
             className="w-full p-3 pr-12 rounded-2xl bg-gray-100 text-gray-800 resize-none"
             placeholder="Type a message..."
             rows={1}

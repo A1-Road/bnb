@@ -22,7 +22,7 @@ export const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
         />
       ) : (
         <TextMessage
-          content={message.content || ""}
+          content={message.content ?? ""}
           timestamp={message.timestamp}
           isOwn={isOwn}
           isEncrypted={message.isEncrypted}

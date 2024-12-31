@@ -1,6 +1,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Message } from "@/types/message";
 import { groupMessagesByDate } from "@/utils/messageGroups";
+import { decryptMessage } from "@/utils/encryption";
+import type { KeyPair } from "@/utils/encryption";
 import Image from "next/image";
 
 interface MessageListProps {
@@ -8,6 +10,8 @@ interface MessageListProps {
   hasMore: boolean;
   isLoading: boolean;
   onLoadMore: () => void;
+  keyPair?: KeyPair;
+  contactPublicKey?: string;
 }
 
 export const MessageList = ({
@@ -15,6 +19,8 @@ export const MessageList = ({
   hasMore,
   isLoading,
   onLoadMore,
+  keyPair,
+  contactPublicKey,
 }: Readonly<MessageListProps>) => {
   const observerTarget = useRef<HTMLDivElement>(null);
   const messageGroups = groupMessagesByDate(messages);
@@ -42,6 +48,22 @@ export const MessageList = ({
   }, [handleObserver]);
 
   const renderMessageContent = (message: Message) => {
+    let content = message.content;
+
+    // 暗号化メッセージの復号化
+    if (message.encrypted && message.publicKey && keyPair && contactPublicKey) {
+      const decrypted = decryptMessage(
+        content,
+        keyPair.privateKey,
+        message.publicKey
+      );
+      if (decrypted) {
+        content = decrypted;
+      } else {
+        content = "メッセージを復号化できませんでした";
+      }
+    }
+
     switch (message.type) {
       case "image":
         return (
@@ -62,7 +84,10 @@ export const MessageList = ({
             </button>
             {message.content && (
               <p className="text-sm whitespace-pre-wrap break-words">
-                {message.content}
+                {content}
+                {message.encrypted && (
+                  <span className="ml-1 text-xs text-gray-400">🔒</span>
+                )}
               </p>
             )}
           </div>
@@ -85,7 +110,10 @@ export const MessageList = ({
             </video>
             {message.content && (
               <p className="text-sm whitespace-pre-wrap break-words">
-                {message.content}
+                {content}
+                {message.encrypted && (
+                  <span className="ml-1 text-xs text-gray-400">🔒</span>
+                )}
               </p>
             )}
           </div>
@@ -106,7 +134,10 @@ export const MessageList = ({
       default:
         return (
           <p className="text-sm whitespace-pre-wrap break-words">
-            {message.content}
+            {content}
+            {message.encrypted && (
+              <span className="ml-1 text-xs text-gray-400">🔒</span>
+            )}
           </p>
         );
     }

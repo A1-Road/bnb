@@ -4,7 +4,7 @@ import { generateKeyPair, type KeyPair } from "@/utils/encryption";
 const KEY_STORAGE_KEY = "encryption_keys";
 
 export const useEncryption = () => {
-  const [keyPair, setKeyPair] = useState<KeyPair | null>(null);
+  const [keyPair, setKeyPair] = useState<KeyPair | undefined>(undefined);
 
   useEffect(() => {
     // ローカルストレージからキーペアを取得

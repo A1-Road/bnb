@@ -14,6 +14,7 @@ import { ConnectionStatus } from "@/components/common/ConnectionStatus";
 import { TypingIndicator } from "@/components/common/TypingIndicator";
 import { OnlineStatus } from "@/components/common/OnlineStatus";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useEncryption } from "@/hooks/useEncryption";
 
 interface PageParams {
   id: string;
@@ -44,6 +45,8 @@ export default function ChatRoom() {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { onlineStatus, updateStatus, isUserOnline } = useOnlineStatus();
+  const keyPair = useEncryption();
+  const [contactPublicKey, setContactPublicKey] = useState<string>();
 
   const fetchContact = useCallback(async () => {
     try {
@@ -54,6 +57,17 @@ export default function ChatRoom() {
     } catch (error) {
       console.error("Error fetching contact:", error);
       WebApp.showAlert("Failed to load contact information");
+    }
+  }, [params.id]);
+
+  const fetchContactPublicKey = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/contacts/${params.id}/public-key`);
+      if (!response.ok) throw new Error("Failed to fetch contact's public key");
+      const data = await response.json();
+      setContactPublicKey(data.publicKey);
+    } catch (error) {
+      console.error("Error fetching public key:", error);
     }
   }, [params.id]);
 
@@ -83,9 +97,17 @@ export default function ChatRoom() {
     }
   }, [lastMessage, updateStatus]);
 
+  useEffect(() => {
+    fetchContactPublicKey();
+  }, [fetchContactPublicKey]);
+
   const handleSendMessage = async (message: string, file?: File) => {
     try {
-      const result = await sendMessage(message, file);
+      const result = await sendMessage(message, file, {
+        encrypt: true,
+        keyPair,
+        recipientPublicKey: contactPublicKey,
+      });
       sendWebSocketMessage("message", {
         userId: params.id,
         message: result,
@@ -170,6 +192,8 @@ export default function ChatRoom() {
           hasMore={hasMore}
           isLoading={isLoadingMessages}
           onLoadMore={loadMore}
+          keyPair={keyPair}
+          contactPublicKey={contactPublicKey}
         />
       </div>
 

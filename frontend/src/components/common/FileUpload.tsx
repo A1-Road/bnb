@@ -5,6 +5,7 @@ interface FileUploadProps {
   onChange: (file: File | null) => void;
   currentFile: File | null;
   className?: string;
+  disabled?: boolean;
 }
 
 export const FileUpload = ({
@@ -12,6 +13,7 @@ export const FileUpload = ({
   onChange,
   currentFile,
   className = "",
+  disabled,
 }: FileUploadProps) => {
   return (
     <div className={className}>
@@ -21,12 +23,17 @@ export const FileUpload = ({
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChange(e.target.files?.[0] || null)
         }
+        disabled={disabled}
         className="hidden"
         id="file-upload"
       />
       <label
         htmlFor="file-upload"
-        className="cursor-pointer inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+        className={`inline-flex items-center gap-2 text-gray-600 ${
+          disabled
+            ? "opacity-50 cursor-not-allowed"
+            : "cursor-pointer hover:text-gray-900"
+        }`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +41,7 @@ export const FileUpload = ({
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-6 h-6"
+          className="w-7 h-7"
         >
           <path
             strokeLinecap="round"

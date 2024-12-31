@@ -1,7 +1,6 @@
 import { useRef, useEffect, forwardRef } from "react";
 import type { Message } from "@/types/message";
 import { groupMessagesByDate } from "@/utils/messageGroups";
-import type { KeyPair } from "@/utils/encryption";
 import { MessageGroup } from "@/components/chat/MessageGroup";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -10,24 +9,11 @@ interface MessageListProps {
   hasMore: boolean;
   isLoading: boolean;
   onLoadMore: () => void;
-  keyPair?: KeyPair;
-  contactPublicKey?: string;
   isTyping?: boolean;
 }
 
 export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
-  (
-    {
-      messages,
-      hasMore,
-      isLoading,
-      onLoadMore,
-      keyPair,
-      contactPublicKey,
-      isTyping = false,
-    },
-    ref
-  ) => {
+  ({ messages, hasMore, isLoading, onLoadMore, isTyping = false }, ref) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const messageGroups = groupMessagesByDate(messages);
 
@@ -104,8 +90,6 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
                 <MessageGroup
                   date={date}
                   messages={messages}
-                  keyPair={keyPair}
-                  contactPublicKey={contactPublicKey}
                   isTyping={
                     isTyping && virtualRow.index === messageGroups.length - 1
                   }

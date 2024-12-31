@@ -1,20 +1,15 @@
 import type { Message } from "@/types/message";
 import { MessageBubble } from "./MessageBubble";
-import type { KeyPair } from "@/utils/encryption";
 
 interface MessageGroupProps {
   date: string;
   messages: Message[];
-  keyPair?: KeyPair;
-  contactPublicKey?: string;
   isTyping: boolean;
 }
 
 export const MessageGroup = ({
   date,
   messages,
-  keyPair,
-  contactPublicKey,
   isTyping,
 }: Readonly<MessageGroupProps>) => {
   return (
@@ -25,8 +20,7 @@ export const MessageGroup = ({
           <MessageBubble
             key={message.id}
             message={message}
-            keyPair={keyPair}
-            contactPublicKey={contactPublicKey}
+            isOwn={message.senderId === "me"}
           />
         ))}
         {isTyping && (

@@ -157,8 +157,6 @@ export default function ChatRoom() {
           hasMore={hasMore}
           isLoading={isLoadingMessages}
           onLoadMore={loadMore}
-          keyPair={keyPair}
-          contactPublicKey={contactPublicKey}
           isTyping={isTyping}
         />
       }

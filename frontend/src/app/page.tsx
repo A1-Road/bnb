@@ -21,10 +21,8 @@ export default function Home() {
   } = useMessages();
 
   useEffect(() => {
-    if (WebApp.isReady) {
-      WebApp.ready();
-      WebApp.expand();
-    }
+    WebApp.ready();
+    WebApp.expand();
   }, []);
 
   const handleSendMessage = async (message: string) => {

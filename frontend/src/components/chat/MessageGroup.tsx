@@ -14,7 +14,11 @@ export const MessageGroup = ({
 }: Readonly<MessageGroupProps>) => {
   return (
     <div className="space-y-4">
-      <div className="text-xs text-center text-gray-500">{date}</div>
+      <div className="flex justify-center message-date">
+        <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          {date}
+        </span>
+      </div>
       <div className="space-y-2">
         {messages.map((message) => (
           <MessageBubble

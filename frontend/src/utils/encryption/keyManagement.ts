@@ -1,9 +1,19 @@
 import { randomBytes } from "crypto";
+import type { KeyPair } from "./keyGeneration";
 
 interface KeyStore {
   encryptionKey: Buffer;
   keyId: string;
   createdAt: Date;
+}
+
+export function storeKeyPair(keyPair: KeyPair): void {
+  localStorage.setItem("keyPair", JSON.stringify(keyPair));
+}
+
+export function getStoredKeyPair(): { keyPair: KeyPair } | null {
+  const stored = localStorage.getItem("keyPair");
+  return stored ? { keyPair: JSON.parse(stored) } : null;
 }
 
 export class KeyManager {

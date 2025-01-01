@@ -1,28 +1,34 @@
-import { generateKeyPair as generateRSAKeyPair } from "crypto";
-import { promisify } from "util";
-
 export interface KeyPair {
   publicKey: string;
   privateKey: string;
 }
 
-const generateRSAKeyPairAsync = promisify(generateRSAKeyPair);
-
 export async function generateKeyPair(): Promise<KeyPair> {
   try {
-    const { publicKey, privateKey } = await generateRSAKeyPairAsync("rsa", {
-      modulusLength: 2048,
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
+    const keyPair = await window.crypto.subtle.generateKey(
+      {
+        name: "RSA-OAEP",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
       },
-      privateKeyEncoding: {
-        type: "pkcs8",
-        format: "pem",
-      },
-    });
+      true,
+      ["encrypt", "decrypt"]
+    );
 
-    return { publicKey, privateKey };
+    const publicKey = await window.crypto.subtle.exportKey(
+      "spki",
+      keyPair.publicKey
+    );
+    const privateKey = await window.crypto.subtle.exportKey(
+      "pkcs8",
+      keyPair.privateKey
+    );
+
+    return {
+      publicKey: btoa(String.fromCharCode(...new Uint8Array(publicKey))),
+      privateKey: btoa(String.fromCharCode(...new Uint8Array(privateKey))),
+    };
   } catch (error) {
     console.error("Failed to generate key pair:", error);
     throw new Error("Key generation failed");

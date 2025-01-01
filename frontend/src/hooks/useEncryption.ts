@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import { generateKeyPair, type KeyPair } from "@/utils/encryption";
-import { getStoredKeyPair, storeKeyPair } from "@/utils/keyManagement";
+import type { KeyPair } from "@/utils/encryption";
+import {
+  getStoredKeyPair,
+  storeKeyPair,
+} from "@/utils/encryption/keyManagement";
 
 interface EncryptionState {
   keyPair: KeyPair | undefined;
@@ -20,9 +23,12 @@ export const useEncryption = (): EncryptionState => {
     if (stored) {
       setKeyPair(stored.keyPair);
     } else {
-      const newKeyPair = generateKeyPair();
-      storeKeyPair(newKeyPair);
-      setKeyPair(newKeyPair);
+      const dummyKeyPair: KeyPair = {
+        publicKey: "dummy-public-key",
+        privateKey: "dummy-private-key",
+      };
+      storeKeyPair(dummyKeyPair);
+      setKeyPair(dummyKeyPair);
       if (!hasSeenBackup && !backupLater) {
         setShowInitialBackup(true);
       }

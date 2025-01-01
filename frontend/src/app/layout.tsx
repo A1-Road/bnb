@@ -48,7 +48,11 @@ export default function RootLayout({
           <ProfileSetupModal onComplete={handleProfileComplete} />
         )}
         {!showProfileSetup && showInitialBackup && keyPair && (
-          <KeyBackupModal keyPair={keyPair} onClose={handleBackupComplete} />
+          <KeyBackupModal
+            keyPair={keyPair}
+            onClose={handleBackupComplete}
+            onComplete={handleBackupComplete}
+          />
         )}
         {showComplete && (
           <SetupCompleteModal onComplete={handleSetupComplete} />

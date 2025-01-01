@@ -1,4 +1,4 @@
-import { KeyBackup } from "@/utils/keyManagement";
+import type { KeyBackup } from "@/utils/encryption/keyManagement";
 
 interface KeyBackupListProps {
   backups: KeyBackup[];

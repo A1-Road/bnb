@@ -1,6 +1,11 @@
 import { randomBytes } from "crypto";
 import type { KeyPair } from "./keyGeneration";
 
+export interface KeyBackup {
+  keyPair: KeyPair;
+  timestamp: number;
+}
+
 interface KeyStore {
   encryptionKey: Buffer;
   keyId: string;

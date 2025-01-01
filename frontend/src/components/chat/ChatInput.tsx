@@ -52,7 +52,12 @@ export const ChatInput = ({
         <MessageInputArea
           message={message}
           onChange={setMessage}
-          onSubmit={handleSubmit}
+          handleKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
           onTyping={onTyping}
           placeholder={`Message ${contactName ?? "..."}`}
           disabled={isLoading}

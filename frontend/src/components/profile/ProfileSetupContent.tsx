@@ -1,8 +1,9 @@
 import { SetupSteps } from "./SetupSteps";
-import { ProfileForm } from "./ProfileForm";
+import { ProfileInfoForm } from "./ProfileInfoForm";
 import { KeyGenerationStep } from "./KeyGenerationStep";
 import { SetupCompleteModal } from "../common/SetupCompleteModal";
 import type { ProfileData } from "@/hooks/useProfileSetup";
+import type { KeyPair } from "@/utils/encryption";
 
 interface ProfileSetupContentProps {
   step: number;
@@ -10,7 +11,7 @@ interface ProfileSetupContentProps {
   isGenerating: boolean;
   showBackupModal: boolean;
   showCompleteModal: boolean;
-  keyPair: any;
+  keyPair: KeyPair | undefined;
   onProfileChange: (updates: Partial<ProfileData>) => void;
   onPhotoUpload: () => void;
   onStepComplete: () => void;
@@ -38,18 +39,11 @@ export const ProfileSetupContent = ({
       <SetupSteps currentStep={step} totalSteps={2} />
 
       {step === 0 && (
-        <ProfileForm
+        <ProfileInfoForm
           profile={profile}
           onProfileChange={onProfileChange}
           onPhotoUpload={onPhotoUpload}
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!profile.name || !profile.username) {
-              alert("Name and Username are required");
-              return;
-            }
-            onStepComplete();
-          }}
+          onSubmit={onStepComplete}
         />
       )}
 

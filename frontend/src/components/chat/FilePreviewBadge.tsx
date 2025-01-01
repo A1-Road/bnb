@@ -8,7 +8,7 @@ export const FilePreviewBadge = ({
   onRemove,
 }: FilePreviewBadgeProps) => {
   return (
-    <div className="inline-flex items-center mb-3 px-4">
+    <div className="inline-flex items-center mt-3 px-4">
       <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-lg">
         <svg
           xmlns="http://www.w3.org/2000/svg"

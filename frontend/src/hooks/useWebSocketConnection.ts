@@ -31,7 +31,7 @@ export const useWebSocketConnection = (
           const message = JSON.parse(event.data);
           onMessage(message);
         } catch (error) {
-          console.error("Failed to parse WebSocket message:", error);
+          console.error("Failed to parse WebSocket message");
         }
       };
 
@@ -55,7 +55,7 @@ export const useWebSocketConnection = (
 
       wsRef.current = ws;
     } catch (error) {
-      console.error("Failed to establish WebSocket connection:", error);
+      console.log("WebSocket connection attempt failed");
       isConnectingRef.current = false;
     }
   }, [onMessage]);

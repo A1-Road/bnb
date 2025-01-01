@@ -1,9 +1,10 @@
 "use client";
 
+import React, { useRef } from "react";
+
 interface FileUploadProps {
   accept: string;
   onChange: (file: File | null) => void;
-  currentFile: File | null;
   className?: string;
   disabled?: boolean;
 }
@@ -11,24 +12,32 @@ interface FileUploadProps {
 export const FileUpload = ({
   accept,
   onChange,
-  currentFile,
   className = "",
   disabled,
 }: FileUploadProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.files?.[0] || null);
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
+
   return (
     <div className={className}>
       <input
+        ref={inputRef}
         type="file"
         accept={accept}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          onChange(e.target.files?.[0] || null)
-        }
+        onChange={handleChange}
         disabled={disabled}
         className="hidden"
         id="file-upload"
       />
       <label
         htmlFor="file-upload"
+        aria-label="Upload file"
         className={`inline-flex items-center gap-2 text-gray-600 ${
           disabled
             ? "opacity-50 cursor-not-allowed"

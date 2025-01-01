@@ -1,5 +1,5 @@
 export type WebSocketMessage = {
-  type: "message" | "status" | "typing";
+  type: "message" | "status" | "typing" | "init";
   data: {
     userId?: string;
     message?: string;

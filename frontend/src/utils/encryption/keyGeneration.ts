@@ -22,10 +22,7 @@ export async function generateKeyPair(): Promise<KeyPair> {
       },
     });
 
-    return {
-      publicKey,
-      privateKey,
-    };
+    return { publicKey, privateKey };
   } catch (error) {
     console.error("Failed to generate key pair:", error);
     throw new Error("Key generation failed");
